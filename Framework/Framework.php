@@ -10,7 +10,7 @@ class Framework
 {
     use Router, middlewareEngine;
     public $_httpRequest;
-    private $_appFolder;
+    private static $_appFolder;
 
     public function __construct()
     {
@@ -23,7 +23,7 @@ class Framework
         }
     }
 
-    public function setAppFolder($folder){
+    public static function setAppFolder($folder){
         self::$_appFolder = $folder;
     }
 
