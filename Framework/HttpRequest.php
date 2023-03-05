@@ -11,6 +11,7 @@ class HttpRequest
 
     private         $_param;
     private         $_method;
+    private         $_route;
     public          $request;
 
     function __construct()
