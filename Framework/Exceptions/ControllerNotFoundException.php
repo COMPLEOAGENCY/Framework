@@ -1,6 +1,6 @@
 <?php
 
-namespace Georges\Framework\Exceptions;
+namespace Framework\Exceptions;
 
 	class ControllerNotFoundException extends \Exception
 	{

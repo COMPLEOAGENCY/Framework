@@ -11,7 +11,7 @@ PHP Framework MVC routing request
 ## Start
 
 ```
-use Georges\Framework\Framework;
+use Framework\Framework;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -37,7 +37,7 @@ You will **define all of the routes** for your application in the **Config/route
 Or generate **routes dynamically**. The most basic routes simply accept a **URI**, **Controller**, **Method**
 
 ```
-use Georges\Framework\Framework;
+use Framework\Framework;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -62,7 +62,7 @@ Your Controller must extends **Framework\Controller**
 
 ```
 namespace  Georges\Controllers;
-use Georges\Framework\Controller;
+use Framework\Controller;
 
 class ExampleController extends Controller
 {
@@ -77,7 +77,7 @@ In your controller, you can define **params** and and access them in your views
 
 ```
 namespace  Georges\Controllers;
-use Georges\Framework\Controller;
+use Framework\Controller;
 
 class ExampleController extends Controller
 {
@@ -113,7 +113,7 @@ All your Middleware must contains **handle function** for call all next middlewa
 ```
 namespace Georges\Middlewares;
 
-class ExampleMiddleWare extends \Georges\Framework\Middleware{
+class ExampleMiddleWare extends \Framework\Middleware{
     function handle($httpRequest){
         echo  "ExampleMiddleWare run";
         return parent::next($httpRequest);
@@ -135,7 +135,7 @@ Views
 
 ```
 namespace  Georges\Controllers;
-use Georges\Framework\Controller;
+use Framework\Controller;
 
 class ExampleController extends Controller
 {
@@ -204,7 +204,7 @@ $view::addJs("example/main.js");
 **Routing**
 
 ```
-use Georges\Framework\Framework;
+use Framework\Framework;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -238,7 +238,7 @@ return
 ```
 namespace Georges\Middlewares;
 
-class ExampleAuthMiddleware extends \Georges\Framework\Middleware
+class ExampleAuthMiddleware extends \Framework\Middleware
 {
     function handle($httpRequest)
     {
@@ -256,7 +256,7 @@ class ExampleAuthMiddleware extends \Georges\Framework\Middleware
 ```
 namespace Georges\Middlewares;
 
-class ExampleSetAuthMiddleware extends \Georges\Framework\Middleware
+class ExampleSetAuthMiddleware extends \Framework\Middleware
 {
     function handle($httpRequest)
     {
@@ -281,7 +281,7 @@ class ExampleSetAuthMiddleware extends \Georges\Framework\Middleware
 
 ```
 namespace  Georges\Controllers;
-use Georges\Framework\Controller;
+use Framework\Controller;
 
 class ExampleLogin extends Controller
 {
@@ -295,7 +295,7 @@ class ExampleLogin extends Controller
 
 ```
 namespace  Georges\Controllers;
-use Georges\Framework\Controller;
+use Framework\Controller;
 
 class Home extends Controller
 {

@@ -1,6 +1,6 @@
 <?php
-namespace Georges\Framework;
-use Georges\Framework\Exceptions\MiddlewareNotFoundException;
+namespace Framework;
+use Framework\Exceptions\MiddlewareNotFoundException;
 
 
 trait middlewareEngine {

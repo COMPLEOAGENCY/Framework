@@ -1,9 +1,9 @@
 <?php
 
-namespace Georges\Framework;
+namespace Framework;
 
-use Georges\Framework\Exceptions\ActionNotFoundException;
-use Georges\Framework\Exceptions\ControllerNotFoundException;
+use Framework\Exceptions\ActionNotFoundException;
+use Framework\Exceptions\ControllerNotFoundException;
 
 class Route
 {

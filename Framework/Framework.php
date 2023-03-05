@@ -1,8 +1,8 @@
 <?php
 
-namespace Georges\Framework;
+namespace Framework;
 
-use Georges\Framework\Exceptions\MiddlewareNotFoundException;
+use Framework\Exceptions\MiddlewareNotFoundException;
 use Illuminate\Http\Response;
 
 class Framework

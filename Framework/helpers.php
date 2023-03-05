@@ -1,7 +1,7 @@
 <?php
 
-use Georges\Framework\Framework;
-use Georges\Framework\Route;
+use Framework\Framework;
+use Framework\Route;
 
 /**
  * Create a flash message

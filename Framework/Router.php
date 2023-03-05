@@ -1,9 +1,9 @@
 <?php
 
-namespace Georges\Framework;
+namespace Framework;
 
-use Georges\Framework\Exceptions\MultipleRouteFoundException;
-use Georges\Framework\Exceptions\NoRouteFoundException;
+use Framework\Exceptions\MultipleRouteFoundException;
+use Framework\Exceptions\NoRouteFoundException;
 
 
 trait Router

@@ -1,6 +1,6 @@
 <?php
 
-namespace Georges\Framework;
+namespace Framework;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Redirect;

@@ -1,8 +1,8 @@
 <?php
 
-namespace  Georges\Framework;
+namespace  Framework;
 
-use  Georges\Framework\View;
+use  Framework\View;
 
 class Controller
 {

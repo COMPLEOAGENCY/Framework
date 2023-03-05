@@ -1,14 +1,14 @@
 {
-    "name": "compleo/georges",
-    "description": "Armed Bandit testing solution in PHP",
+    "name": "framework/framework",
+    "description": "PHP simple framework",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Georges\\": "src"
+            "Framework\\": "Framework"
         },
         "files": [
-            "src/Framework/helpers.php"
+            "Framework/helpers.php"
         ]
     },
     "authors": [

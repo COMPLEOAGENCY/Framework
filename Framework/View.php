@@ -1,8 +1,8 @@
 <?php
 
-namespace Georges\Framework;
+namespace Framework;
 
-use Georges\Framework\Exceptions\ViewNotFoundException;
+use Framework\Exceptions\ViewNotFoundException;
 
 class View
 {
