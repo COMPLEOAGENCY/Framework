@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 class Framework
 {
     use Router, middlewareEngine;
-    private $_httpRequest;
+    public $_httpRequest;
 
     public function __construct()
     {

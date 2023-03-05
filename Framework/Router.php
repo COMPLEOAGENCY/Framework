@@ -11,7 +11,7 @@ trait Router
     public static $listRoute;
     private $_foundRoute;
 
-    public static function setListRoute($routeFilePath)
+    public static function setListRoute($routeFilePath= __DIR__.'/../../app/middlewares.php')
     {
         // $routeFilePath = __DIR__ . '/../Config/route.json';
         if (file_exists($routeFilePath)) {

@@ -9,7 +9,7 @@ trait middlewareEngine {
         public static $middlewareChain = [];         
     
         public static function setMiddleware() {
-            $middlewareFilePath = __DIR__.'/../Config/middlewares.php';
+            $middlewareFilePath = __DIR__.'/../../app/middlewares.php';
             if(file_exists($middlewareFilePath)){                
                 self::$listMiddleware = require_once($middlewareFilePath);
             }else{
