@@ -23,6 +23,10 @@ class Framework
         }
     }
 
+    public function setAppFolder($folder){
+        self::$_appFolder = $folder;
+    }
+
 
     public function run()
     {
