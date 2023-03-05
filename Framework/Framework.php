@@ -3,19 +3,24 @@
 namespace Framework;
 
 use Framework\Exceptions\MiddlewareNotFoundException;
+use Framework\Exceptions\AppFolderNotFoundException;
 use Illuminate\Http\Response;
 
 class Framework
 {
     use Router, middlewareEngine;
     public $_httpRequest;
+    private $_appFolder;
 
     public function __construct()
     {
-
-        $this->_httpRequest = new HttpRequest();
-        Framework::setListRoute();
-        Framework::setMiddleware();
+        if(empty(self::$_appFolder)){
+            throw new AppFolderNotFoundException();
+        } else {
+            $this->_httpRequest = new HttpRequest();
+            Framework::setListRoute(self::$_appFolder);
+            Framework::setMiddleware(self::$_appFolder);
+        }
     }
 
 

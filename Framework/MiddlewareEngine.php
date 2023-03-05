@@ -8,10 +8,8 @@ trait middlewareEngine {
         public static $listMiddleware;
         public static $middlewareChain = [];         
     
-        public static function setMiddleware($middlewareFilePath="") {
-            if(empty($middlewareFilePath)){
-                $middlewareFilePath = __DIR__.'/../../app/Middlewares/middlewares.php';
-            }
+        public static function setMiddleware($appFolder) {
+            $middlewareFilePath = $appFolder.'/Middlewares/middlewares.php';
             if(file_exists($middlewareFilePath)){                
                 self::$listMiddleware = require_once($middlewareFilePath);
             }else{
