@@ -51,7 +51,7 @@ class Route
     public function run($httpRequest)
     {
         $controller = null;
-        $controllerName = 'Georges\\Controllers\\' . $this->_controller;
+        $controllerName = 'Controllers\\' . $this->_controller;
         if (class_exists($controllerName)) {
             $controller = new $controllerName($httpRequest);
             if (method_exists($controller, $this->_action)) {
