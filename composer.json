@@ -1,0 +1,33 @@
+{
+    "name": "compleo/georges",
+    "description": "Armed Bandit testing solution in PHP",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Georges\\": "src"
+        },
+        "files": [
+            "src/Framework/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "marciv",
+            "email": "barlot.marc@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.3.5|^8.0",
+        "vlucas/phpdotenv": "^5.4",
+        "illuminate/database": "^5.7",
+        "illuminate/http": "^5.7"
+    },
+    "config": {
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true
+        }
+    }
+}
