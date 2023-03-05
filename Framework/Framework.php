@@ -27,12 +27,10 @@ class Framework
         $this->findRoute();
         $this->_foundRoute->run($this->_httpRequest);
 
-        echo '<pre>';
-
+        // echo '<pre>';
         // print_r($this->_foundRoute);
         // print_r(self::$middlewareChain);
-
-        echo '</pre>';
+        // echo '</pre>';
         return;
     }
 }

@@ -11,9 +11,9 @@ trait Router
     public static $listRoute;
     private $_foundRoute;
 
-    public static function setListRoute()
+    public static function setListRoute($routeFilePath)
     {
-        $routeFilePath = __DIR__ . '/../Config/route.json';
+        // $routeFilePath = __DIR__ . '/../Config/route.json';
         if (file_exists($routeFilePath)) {
             $stringRoute = file_get_contents($routeFilePath);
             self::$listRoute = json_decode($stringRoute);
