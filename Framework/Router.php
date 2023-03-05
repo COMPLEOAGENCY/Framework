@@ -11,9 +11,13 @@ trait Router
     public static $listRoute;
     private $_foundRoute;
 
-    public static function setListRoute($routeFilePath= __DIR__.'/../../app/middlewares.php')
+    public static function setListRoute($routeFilePath=null)
     {
-        // $routeFilePath = __DIR__ . '/../Config/route.json';
+        
+        if(empty($routeFilePath)){
+            $routeFilePath = __DIR__.'/../../app/route.json';
+            echo $routeFilePath;
+        }
         if (file_exists($routeFilePath)) {
             $stringRoute = file_get_contents($routeFilePath);
             self::$listRoute = json_decode($stringRoute);

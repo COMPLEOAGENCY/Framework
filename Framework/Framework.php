@@ -12,6 +12,7 @@ class Framework
 
     public function __construct()
     {
+
         $this->_httpRequest = new HttpRequest();
         Framework::setListRoute();
         Framework::setMiddleware();
