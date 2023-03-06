@@ -3,7 +3,7 @@ namespace Framework;
 use Framework\Exceptions\MiddlewareNotFoundException;
 
 
-trait middlewareEngine {
+trait MiddlewareEngine {
 
         public static $listMiddleware;
         public static $middlewareChain = [];         

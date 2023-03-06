@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 
 class Framework
 {
-    use Router, middlewareEngine;
+    use Router, MiddlewareEngine;
     public $_httpRequest;
     private static $_appFolder;
 
