@@ -13,7 +13,7 @@ trait Router
 
     public static function setListRoute($appFolder)
     {
-        $routeFilePath = $appFolder.'/route.json';
+        $routeFilePath = $appFolder.'route.json';
         if (file_exists($routeFilePath)) {
             $stringRoute = file_get_contents($routeFilePath);
             self::$listRoute = json_decode($stringRoute);
