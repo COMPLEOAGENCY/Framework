@@ -3,20 +3,25 @@ namespace Framework;
 use Framework\Exceptions\MiddlewareNotFoundException;
 
 
-trait MiddlewareEngine {
+trait middlewareEngine {
 
         public static $listMiddleware;
         public static $middlewareChain = [];         
     
-        public static function setMiddleware($appFolder) {
-            $middlewareFilePath = $appFolder.'/Middlewares/middlewares.php';
-            if(file_exists($middlewareFilePath)){                
+        public static function setMiddleware($appFolder) {            
+            $middlewareFilePath = $appFolder.'middlewares.php';            
+            if(file_exists($middlewareFilePath)){
                 self::$listMiddleware = require_once($middlewareFilePath);
             }else{
                 self::$listMiddleware =  [];
             }
     
         }
+
+        public function getListMiddleware()
+        {
+            return self::$listMiddleware;
+        }        
     
         public static function setMiddlewareChain($httpRequest) {
             $MiddlewaresFound = array_filter(self::$listMiddleware,function($middleware) use ($httpRequest){            
