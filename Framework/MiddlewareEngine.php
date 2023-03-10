@@ -48,25 +48,20 @@ trait middlewareEngine {
             return false;
         }  
 
-        public static function runMiddlewareChain($httpRequest){
+        public static function runMiddlewareChain($httpRequest,$httpResponse){
             $cursorMiddleware    =   @self::$middlewareChain[0]['middleware'];  
             if($cursorMiddleware){
                 $class  = new $cursorMiddleware();
                 if (method_exists($class, 'handle')){
                     unset(self::$middlewareChain[0]);
                     self::$middlewareChain = array_values(self::$middlewareChain);
-                    return $class->handle($httpRequest);
+                    return $class->handle($httpRequest,$httpResponse);
                 } else {
                     throw new MiddlewareNotFoundException("Path : ".$httpRequest->getPath());
                 }                
             } else {
-                return;
+                return $httpResponse;
             }
-
-            return;
         }
-    
-
-    
 
 }

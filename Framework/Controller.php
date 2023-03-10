@@ -7,13 +7,15 @@ use  Framework\View;
 class Controller
 {
 
-    private $_httpRequest;
-    private $_param;
+    public $_httpRequest;
+    public $_httpResponse;
+    public $_param;
     public static $dirName = "";
 
-    public function __construct($httpRequest)
+    public function __construct($httpRequest,$httpResponse)
     {
         $this->_httpRequest = $httpRequest;
+        $this->_httpResponse = $httpResponse;
     }
 
 
