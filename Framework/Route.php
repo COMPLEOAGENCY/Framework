@@ -48,14 +48,14 @@ class Route
         return $this->_param;
     }
 
-    public function run($httpRequest)
+    public function run($httpRequest,$httpResponse)
     {
         $controller = null;
         $controllerName = 'Controllers\\' . $this->_controller;
         if (class_exists($controllerName)) {
-            $controller = new $controllerName($httpRequest);
+            $controller = new $controllerName($httpRequest,$httpResponse);
             if (method_exists($controller, $this->_action)) {
-                $controller->{$this->_action}(array_merge($httpRequest->getParams(),$this->getParam()));
+                return $controller->{$this->_action}(array_merge($httpRequest->getParams(),$this->getParam()));
             } else {
                 throw new ActionNotFoundException();
             }
