@@ -23,7 +23,8 @@
         "php": "^7.2.3|^8.0",
         "vlucas/phpdotenv": "^5.4",
         "illuminate/database": "^5.7",
-        "illuminate/http": "^5.7"
+        "illuminate/http": "^5.7",
+        "monolog/monolog": "^2.9"
     },
     "config": {
         "allow-plugins": {
