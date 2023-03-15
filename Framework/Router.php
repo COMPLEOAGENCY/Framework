@@ -65,9 +65,10 @@ trait Router
         });
 
         $numberRoute = count($routeFound);
-        if ($numberRoute > 1) {
-            throw new MultipleRouteFoundException("Path : " . $httpRequest->getPath());
-        } else if ($numberRoute == 0) {
+        // if ($numberRoute > 1) {
+        //     throw new MultipleRouteFoundException("Path : " . $httpRequest->getPath());
+        // } else if ($numberRoute == 0) {
+        if ($numberRoute == 0) {            
             throw new NoRouteFoundException("Path : " . $httpRequest->getPath());
         } else {
             $route = new Route(array_shift($routeFound));
