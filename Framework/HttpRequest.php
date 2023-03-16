@@ -29,7 +29,7 @@ class HttpRequest
 
     public function getPath()
     {
-        return '/' . ltrim($this->request->path(), "/");
+        return '/' . ltrim($this->request->getPathInfo(), "/");
     }
 
     public function getMethod()

@@ -4,6 +4,7 @@ namespace Framework;
 
 use Framework\Exceptions\ActionNotFoundException;
 use Framework\Exceptions\ControllerNotFoundException;
+use Throwable;
 
 class Route
 {
@@ -55,7 +56,12 @@ class Route
         if (class_exists($controllerName)) {
             $controller = new $controllerName($httpRequest,$httpResponse);
             if (method_exists($controller, $this->_action)) {
-                return $controller->{$this->_action}(array_merge($httpRequest->getParams(),$this->getParam()));
+                // try {
+                //     return $controller->{$this->_action}(array_merge($httpRequest->getParams(),$this->getParam()));
+                // } catch (Throwable $e){
+                //     throw new \Exception("Controler error");
+                // }
+                return $controller->{$this->_action}(array_merge($httpRequest->getParams(),$this->getParam()));                
             } else {
                 throw new ActionNotFoundException();
             }
