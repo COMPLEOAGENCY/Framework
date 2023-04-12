@@ -16,12 +16,14 @@ class Controller
     {
         $this->_httpRequest = $httpRequest;
         $this->_httpResponse = $httpResponse;
+        $this->_param=[];
     }
 
 
     public function view(string $viewName, array $_param = [])
     {
         $this->_view = new View();
+        $_param = array_merge($this->_param,$_param);
         echo $this->_view->renderTemplate($viewName, $_param);
     }
 
