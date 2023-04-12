@@ -40,8 +40,9 @@ class Framework
         $this->_httpResponse = $this->_foundRoute->run($this->_httpRequest,$this->_httpResponse);
 
         if(!$this->_httpResponse instanceof Response){
+            $content = $this->_httpResponse;
             $this->_httpResponse = new Response();
-            $this->_httpResponse->setContent($this->_httpResponse);
+            $this->_httpResponse->setContent($content);            
         }
         // $this->_httpResponse->prepare($this->_httpRequest);
         $this->_httpResponse->send();
