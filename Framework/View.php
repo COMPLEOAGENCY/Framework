@@ -13,8 +13,8 @@ class View
 
     public function __construct()
     {
-        $this->setTemplateFolder(Framework::$_appFolder."/template");
-        $this->setCacheFolder(Framework::$_appFolder."/cache");
+        $this->setTemplateFolder(Framework::$_appFolder."../template");
+        $this->setCacheFolder(Framework::$_appFolder."../cache");
         $this->_bladeOne = new BladeOne($this->_templateFolder, $this->_cacheFolder, BladeOne::MODE_DEBUG);
     }
 
