@@ -13,10 +13,12 @@ class HttpRequest
     private         $_method;
     private         $_route;
     public          $request;
+    public          $session;
 
     function __construct()
     {
         $this->request = Request::capture();
+        $this->session = $this->request->getSession();
         $this->_method = $this->request->method();
         $this->_param = array();
         $this->bindParam();
