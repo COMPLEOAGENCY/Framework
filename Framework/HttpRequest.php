@@ -6,21 +6,23 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Redirect;
 
 
+
 class HttpRequest
 {
 
     private         $_param;
     private         $_method;
     private         $_route;
+    public          $_session;
     public          $request;
-    public          $session;
 
     function __construct()
     {
+
         $this->request = Request::capture();
-        $this->session = $this->request->getSession();
         $this->_method = $this->request->method();
         $this->_param = array();
+        $this->_session = null;
         $this->bindParam();
     }
 
@@ -43,6 +45,15 @@ class HttpRequest
     {
         return $this->_param;
     }
+
+    public function getSession()
+    {
+        return $this->_session;
+    }
+    public function setSession(object $session)
+    {
+        $this->_session = $session;
+    }         
 
     public function setParams(array $params)
     {
