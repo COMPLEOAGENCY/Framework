@@ -28,7 +28,7 @@ class HttpRequest
 
     public function getUrl()
     {
-        return  $this->request->fullUrl();
+        return  $this->request->fullUrl();        
     }
 
     public function getPath()
@@ -39,6 +39,11 @@ class HttpRequest
     public function getMethod()
     {
         return  $this->_method;
+    }
+
+    public function getParam(string $paramName)
+    {
+        return $this->_param[$paramName];
     }
 
     public function getParams()
@@ -84,4 +89,12 @@ class HttpRequest
                 break;
         }
     }
+
+    public function __call($method, $args){
+        if(method_exists($this->request,$method)){        
+            return $this->request->{$method}();
+        }
+        return false;       
+    }
+
 }
