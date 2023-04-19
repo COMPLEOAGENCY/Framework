@@ -45,11 +45,11 @@ class Framework
             $this->_httpResponse->setContent($content);            
         }
         // $this->_httpResponse->prepare($this->_httpRequest);
-        $this->_httpResponse->send();
+        // $this->_httpResponse->send();
         // echo '<pre>';
         // print_r($this->_foundRoute);
         // print_r(self::$middlewareChain);
         // echo '</pre>';
-        return;
+        return $this->_httpResponse->send();
     }
 }
