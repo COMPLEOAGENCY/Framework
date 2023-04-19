@@ -43,7 +43,12 @@ class HttpRequest
 
     public function getParam(string $paramName)
     {
-        return $this->_param[$paramName];
+        if(isset($this->_param[$paramName])){
+            return $this->_param[$paramName];
+        } else {
+            return null;
+        }
+
     }
 
     public function getParams()
