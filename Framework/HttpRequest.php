@@ -68,6 +68,14 @@ class HttpRequest
         return;
     }
 
+    public function deleteParam(string $name)
+    {
+
+        unset($this->_param[$name]);
+
+        return;
+    }    
+
     public function setRoute($route)
     {
         $this->_route = $route;
