@@ -19,6 +19,8 @@ class Framework
             throw new AppFolderNotFoundException();
         } else {
             $this->_httpRequest = new HttpRequest();
+            $params = $this->_httpRequest->getParams();
+            \Classes\logIt('Params when construct Framework','debug',$params);   
             $this->_httpResponse = new Response();
             Framework::setListRoute(self::$_appFolder);
             Framework::setMiddleware(self::$_appFolder);
