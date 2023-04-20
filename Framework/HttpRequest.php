@@ -88,19 +88,26 @@ class HttpRequest
 
     public function bindParam($method = "ALL")
     {
+
         switch ($method) {
             case "GET":
             case "DELETE":
                 $this->_param = $this->request->query();
+                if(!empty($_GET)){$this->_param=array_merge($this->_param,$_GET); }// hack
                 break;
             case "POST":
-            case "PUT":
-                $this->_param = $this->request->post();
+            case "PUT":                
+                if(!empty($_POST)){$this->_param=array_merge($this->_param,$_POST); } // hack
                 break;
             case "ALL":
-                $this->_param = $this->request->all();
+                $this->_param = $this->request->all();                
+                if(!empty($_REQUEST)){$this->_param=array_merge($this->_param,$_REQUEST); } // hack
                 break;
         }
+        if($this->_param['query']){
+            unset($this->_param['query']);
+        }
+        
     }
 
     public function __call($method, $args){

@@ -21,7 +21,6 @@ class Framework
             $this->_httpRequest = new HttpRequest();
             $params = $this->_httpRequest->getParams();
             $uri = $this->_httpRequest->getUrl();
-            \Classes\logIt('Params when construct Framework for this '.$uri.'','debug',$params);   
             $this->_httpResponse = new Response();
             Framework::setListRoute(self::$_appFolder);
             Framework::setMiddleware(self::$_appFolder);
