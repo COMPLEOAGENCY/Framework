@@ -21,9 +21,9 @@ class HttpRequest
 
         $this->request = Request::capture();
         $this->_method = $this->request->method();
-        $this->_param = $this->request->all();
+        $this->_param = array();
         $this->_session = null;
-        // $this->bindParam();
+        $this->bindParam();
     }
 
     public function getUrl()
@@ -101,6 +101,7 @@ class HttpRequest
                 $this->_param = $this->request->all();
                 break;
         }
+        var_dump($this->_param);
     }
 
     public function __call($method, $args){
