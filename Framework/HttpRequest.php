@@ -24,11 +24,12 @@ class HttpRequest
         $this->_param = array();
         $this->_session = null;
         $this->bindParam();
+        \Classes\logIt('bing parameters','debug',$this->_param);   
     }
 
     public function getUrl()
     {
-        return  $this->request->fullUrl();
+        return  $this->request->fullUrl();        
     }
 
     public function getPath()
@@ -43,11 +44,12 @@ class HttpRequest
 
     public function getParam(string $paramName)
     {
-        if (isset($this->_param[$paramName])) {
+        if(isset($this->_param[$paramName])){
             return $this->_param[$paramName];
         } else {
             return null;
         }
+
     }
 
     public function getParams()
@@ -62,7 +64,7 @@ class HttpRequest
     public function setSession(object $session)
     {
         $this->_session = $session;
-    }
+    }         
 
     public function setParams(array $params)
     {
@@ -78,7 +80,7 @@ class HttpRequest
         unset($this->_param[$name]);
 
         return;
-    }
+    }    
 
     public function setRoute($route)
     {
@@ -102,11 +104,11 @@ class HttpRequest
         }
     }
 
-    public function __call($method, $args)
-    {
-        if (method_exists($this->request, $method)) {
+    public function __call($method, $args){
+        if(method_exists($this->request,$method)){        
             return $this->request->{$method}();
         }
-        return false;
+        return false;       
     }
+
 }
