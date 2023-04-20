@@ -21,9 +21,9 @@ class HttpRequest
 
         $this->request = Request::capture();
         $this->_method = $this->request->method();
-        $this->_param = array();
+        $this->_param = $this->request->all();
         $this->_session = null;
-        $this->bindParam();
+        // $this->bindParam();
     }
 
     public function getUrl()
