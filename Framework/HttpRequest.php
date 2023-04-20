@@ -24,7 +24,6 @@ class HttpRequest
         $this->_param = array();
         $this->_session = null;
         $this->bindParam();
-        \Classes\logIt('bing parameters','debug',$this->_param);   
     }
 
     public function getUrl()
