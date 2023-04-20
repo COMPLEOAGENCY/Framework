@@ -101,6 +101,7 @@ class HttpRequest
                 $this->_param = $this->request->all();
                 break;
         }
+        echo '<p>chech bind params</p>';
         var_dump($this->_param);
     }
 
