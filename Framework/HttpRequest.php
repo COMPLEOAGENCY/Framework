@@ -28,7 +28,7 @@ class HttpRequest
 
     public function getUrl()
     {
-        return  $this->request->fullUrl();        
+        return  $this->request->fullUrl();
     }
 
     public function getPath()
@@ -43,12 +43,11 @@ class HttpRequest
 
     public function getParam(string $paramName)
     {
-        if(isset($this->_param[$paramName])){
+        if (isset($this->_param[$paramName])) {
             return $this->_param[$paramName];
         } else {
             return null;
         }
-
     }
 
     public function getParams()
@@ -63,7 +62,7 @@ class HttpRequest
     public function setSession(object $session)
     {
         $this->_session = $session;
-    }         
+    }
 
     public function setParams(array $params)
     {
@@ -75,11 +74,14 @@ class HttpRequest
 
     public function deleteParam(string $name)
     {
-
         unset($this->_param[$name]);
-
         return;
-    }    
+    }
+    public function addParam(string $name, $value)
+    {
+        $this->_param[$name] = $value;
+        return;
+    }
 
     public function setRoute($route)
     {
@@ -88,34 +90,38 @@ class HttpRequest
 
     public function bindParam($method = "ALL")
     {
-
         switch ($method) {
             case "GET":
             case "DELETE":
                 $this->_param = $this->request->query();
-                if(!empty($_GET)){$this->_param=array_merge($this->_param,$_GET); }// hack
+                if (!empty($_GET)) {
+                    $this->_param = array_merge($this->_param, $_GET);
+                } // hack
                 break;
             case "POST":
-            case "PUT":                
-                if(!empty($_POST)){$this->_param=array_merge($this->_param,$_POST); } // hack
+            case "PUT":
+                if (!empty($_POST)) {
+                    $this->_param = array_merge($this->_param, $_POST);
+                } // hack
                 break;
             case "ALL":
-                $this->_param = $this->request->all();                
-                if(!empty($_REQUEST)){$this->_param=array_merge($this->_param,$_REQUEST); } // hack
+                $this->_param = $this->request->all();
+                if (!empty($_REQUEST)) {
+                    $this->_param = array_merge($this->_param, $_REQUEST);
+                } // hack
                 break;
         }
-        if(isset($this->_param['query'])){
+        if (isset($this->_param['query'])) {
             unset($this->_param['query']);
         }
-        \Classes\logIt('Params when bind parameters Framework for this '.$this->getUrl().'','debug',[$this->_param,'$_REQUEST'=>$_REQUEST]);   
-        
+        // \Classes\logIt('Params when bind parameters Framework for this ' . $this->getUrl() . '', 'debug', [$this->_param, '$_REQUEST' => $_REQUEST]);
     }
 
-    public function __call($method, $args){
-        if(method_exists($this->request,$method)){        
+    public function __call($method, $args)
+    {
+        if (method_exists($this->request, $method)) {
             return $this->request->{$method}();
         }
-        return false;       
+        return false;
     }
-
 }
