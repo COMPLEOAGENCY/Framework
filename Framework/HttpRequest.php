@@ -104,7 +104,7 @@ class HttpRequest
                 if(!empty($_REQUEST)){$this->_param=array_merge($this->_param,$_REQUEST); } // hack
                 break;
         }
-        if($this->_param['query']){
+        if(isset($this->_param['query'])){
             unset($this->_param['query']);
         }
         \Classes\logIt('Params when bind parameters Framework for this '.$this->getUrl().'','debug',[$this->_param,'$_REQUEST'=>$_REQUEST]);   
