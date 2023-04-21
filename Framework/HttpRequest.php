@@ -77,7 +77,7 @@ class HttpRequest
         unset($this->_param[$name]);
         return;
     }
-    public function addParam(string $name, $value)
+    public function setParam(string $name, $value)
     {
         $this->_param[$name] = $value;
         return;
