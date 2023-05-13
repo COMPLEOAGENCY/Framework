@@ -15,6 +15,7 @@ class HttpRequest
     private         $_route;
     public          $_session;
     public          $request;
+    public          $path;
 
     function __construct()
     {
@@ -23,6 +24,7 @@ class HttpRequest
         $this->_method = $this->request->method();
         $this->_param = array();
         $this->_session = null;
+        $this->path = '/' . ltrim($this->request->getPathInfo(), "/");
         $this->bindParam();
     }
 
@@ -33,8 +35,13 @@ class HttpRequest
 
     public function getPath()
     {
-        return '/' . ltrim($this->request->getPathInfo(), "/");
+        return $this->path;
     }
+
+    public function setPath($path)
+    {
+        $this->request->pathInfo = "/".trim($path);
+    }    
 
     public function getMethod()
     {
