@@ -40,7 +40,7 @@ class HttpRequest
 
     public function setPath($path)
     {
-        $this->request->pathInfo = "/".trim($path,"/");
+        $this->path = "/".ltrim($path,"/");
     }    
 
     public function getMethod()
