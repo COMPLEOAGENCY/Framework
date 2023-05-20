@@ -9,7 +9,7 @@ use Framework\Exceptions\NoRouteFoundException;
 trait Router
 {
     public static $listRoute;
-    private $_foundRoute;
+    public $_foundRoute;
 
     public static function setListRoute($appFolder)
     {
@@ -24,6 +24,11 @@ trait Router
     {
         return self::$listRoute;
     }
+
+    public function getFoundRoute()
+    {
+        return $this->_foundRoute;
+    }    
 
     public static function addRoute($method, $args)
     {

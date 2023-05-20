@@ -24,6 +24,8 @@ class Framework
             $this->_httpResponse = new Response();
             Framework::setListRoute(self::$_appFolder);
             Framework::setMiddleware(self::$_appFolder);
+            Framework::setMiddlewareChain($this->_httpRequest);
+            $this->findRoute();
         }
     }
 
@@ -34,11 +36,8 @@ class Framework
 
     public function run()
     {
-        if (Framework::setMiddlewareChain($this->_httpRequest)) {
-            $this->_httpResponse = $this->runMiddlewareChain($this->_httpRequest,$this->_httpResponse );
-        }
-        $this->findRoute();
 
+        $this->_httpResponse = $this->runMiddlewareChain($this->_httpRequest,$this->_httpResponse );
         $this->_httpResponse = $this->_foundRoute->run($this->_httpRequest,$this->_httpResponse);
 
         if(!$this->_httpResponse instanceof Response){
