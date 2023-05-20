@@ -21,7 +21,12 @@ trait middlewareEngine {
         public function getListMiddleware()
         {
             return self::$listMiddleware;
-        }        
+        }
+        
+        public function getListMiddlewareChain()
+        {
+            return self::$middlewareChain;
+        }          
     
         public static function setMiddlewareChain($httpRequest) {
             $MiddlewaresFound = array_filter(self::$listMiddleware,function($middleware) use ($httpRequest){            
