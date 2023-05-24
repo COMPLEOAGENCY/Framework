@@ -74,7 +74,7 @@ trait Router
         //     throw new MultipleRouteFoundException("Path : " . $httpRequest->getPath());
         // } else if ($numberRoute == 0) {
         if ($numberRoute == 0) {            
-            throw new NoRouteFoundException("Path : " . $httpRequest->getPath());
+            throw new NoRouteFoundException("No route founded for Path : " . $httpRequest->getPath().", Method : ".$httpRequest->getMethod());
         } else {
             $route = new Route(array_shift($routeFound));
             $this->_foundRoute = $route;

@@ -5,15 +5,13 @@ use Framework\Exceptions\MiddlewareNotFoundException;
 
 trait middlewareEngine {
 
-        public static $listMiddleware;
+        public static $listMiddleware = [];
         public static $middlewareChain = [];         
     
         public static function setMiddleware($appFolder) {            
             $middlewareFilePath = $appFolder.'middlewares.php';            
             if(file_exists($middlewareFilePath)){
                 self::$listMiddleware = require_once($middlewareFilePath);
-            }else{
-                self::$listMiddleware =  [];
             }
     
         }
@@ -29,6 +27,7 @@ trait middlewareEngine {
         }          
     
         public static function setMiddlewareChain($httpRequest) {
+            // var_dump(self::$listMiddleware);
             $MiddlewaresFound = array_filter(self::$listMiddleware,function($middleware) use ($httpRequest){            
                 $return = preg_match("#^" . $middleware['path'] . "$#", $httpRequest->getPath()) && (@$middleware['method'] == $httpRequest->getMethod() || empty($middleware['method'])) || empty($middleware['path']);            
                 return $return;
