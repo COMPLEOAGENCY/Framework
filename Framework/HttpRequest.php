@@ -100,21 +100,23 @@ class HttpRequest
         switch ($method) {
             case "GET":
             case "DELETE":
-                $this->_param = $this->request->query();
-                if (!empty($_GET)) {
-                    $this->_param = array_merge($this->_param, $_GET);
+                // $this->_param = $this->request->query();                
+                if (!empty($this->request->query())) {
+                    $this->_param = array_merge($this->_param, $this->request->query());
                 } // hack
                 break;
             case "POST":
             case "PUT":
-                if (!empty($_POST)) {
-                    $this->_param = array_merge($this->_param, $_POST);
+                // $this->_param = $this->request->post();
+                if (!empty($this->request->post())) {
+                    $this->_param = array_merge($this->_param, $this->request->post());
                 } // hack
                 break;
             case "ALL":
-                $this->_param = $this->request->all();
-                if (!empty($_REQUEST)) {
-                    $this->_param = array_merge($this->_param, $_REQUEST);
+                // $this->_param = $this->request->all();
+                // var_dump( $this->_param);exit;
+                if (!empty($this->request->all())) {
+                    $this->_param = array_merge($this->_param, $this->request->all());
                 } // hack
                 break;
         }
