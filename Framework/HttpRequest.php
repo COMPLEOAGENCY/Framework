@@ -129,7 +129,7 @@ class HttpRequest
     public function __call($method, $args)
     {
         if (method_exists($this->request, $method)) {
-            return $this->request->{$method}();
+            return $this->request->{$method}(...$args);
         }
         return false;
     }
