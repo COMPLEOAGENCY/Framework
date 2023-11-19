@@ -1,7 +1,7 @@
 <?php
 
 namespace Framework;
-
+use Framework\Enums\HTTPMethod;
 use Illuminate\Http\Request;
 use Illuminate\Http\Redirect;
 
@@ -21,7 +21,7 @@ class HttpRequest
     {
 
         $this->request = Request::capture();
-        $this->_method = $this->request->method();
+        $this->_method = HTTPMethod::fromValue($this->request->method());
         $this->_param = array();
         $this->_session = null;
         $this->path = '/' . ltrim($this->request->getPathInfo(), "/");
@@ -45,7 +45,7 @@ class HttpRequest
 
     public function getMethod()
     {
-        return  $this->_method;
+        return  $this->_method->getName();        
     }
 
     public function getParam(string $paramName)
