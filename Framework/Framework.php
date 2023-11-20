@@ -33,6 +33,10 @@ class Framework
         self::$_appFolder = $folder;
     }
 
+    public static function getAppFolder(){
+        return self::$_appFolder;
+    }    
+
 
     public function run()
     {

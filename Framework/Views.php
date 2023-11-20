@@ -5,6 +5,7 @@ namespace Framework;
 use Framework\Exceptions\ViewsTemplateFolderNotFoundException;
 use Framework\Exceptions\ViewsCacheFolderNotFoundException;
 use Framework\Exceptions\ViewNotFoundException;
+use Framework\Framework;
 
 use eftec\bladeone\BladeOne;
 use RuntimeException;
@@ -55,6 +56,9 @@ class Views {
      */
     public static function renderTemplate(string $template, array $args = []): string {
         try {
+            if(!self::$bladeOne){
+                self::init(Framework::getAppFolder());
+            }
             return self::$bladeOne->run($template, $args);
         }
         catch(RuntimeException $error) {

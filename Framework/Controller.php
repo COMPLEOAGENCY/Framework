@@ -2,7 +2,7 @@
 
 namespace  Framework;
 
-use  Framework\View;
+use  Framework\Views;
 
 class Controller
 {
@@ -22,7 +22,7 @@ class Controller
 
     public function view(string $viewName, array $_param = [])
     {
-        $this->_view = new View();
+        $this->_view = new Views();
         $_param = array_merge($this->_param,$_param);
         echo $this->_view->renderTemplate($viewName, $_param);
     }
