@@ -63,7 +63,7 @@ trait Router
 
     private function findRoute()
     {
-        $httpRequest = $this->_httpRequest;
+        $httpRequest = $this->request;
         $routeFound = array_filter(self::$listRoute, function ($route) use ($httpRequest) {
             $return = preg_match("#^" . $route->path . "$#", $httpRequest->getPath()) && ($route->method == $httpRequest->getMethod() || $route->method == "ALL");
             return $return;

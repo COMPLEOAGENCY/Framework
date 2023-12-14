@@ -9,52 +9,57 @@ use Illuminate\Http\Response as Response;
 class Framework
 {
     use Router, MiddlewareEngine;
-    public $_httpRequest;
-    public $_httpResponse;
-    public static $_appFolder;
+    public $request;
+    public $response;
+    public static $appFolder;
 
     public function __construct()
     {
-        if(empty(self::$_appFolder)){
+        if(empty(self::$appFolder)){
             throw new AppFolderNotFoundException();
-        } else {
-            $this->_httpRequest = new HttpRequest();
-            $params = $this->_httpRequest->getParams();
-            $uri = $this->_httpRequest->getUrl();
-            $this->_httpResponse = new Response();
-            Framework::setListRoute(self::$_appFolder);
-            Framework::setMiddleware(self::$_appFolder);
-            Framework::setMiddlewareChain($this->_httpRequest);
-            $this->findRoute();
         }
+
+        $this->request = new HttpRequest();
+        $this->response = new Response();
+
     }
 
     public static function setAppFolder($folder){
-        self::$_appFolder = $folder;
+        self::$appFolder = $folder;
     }
 
     public static function getAppFolder(){
-        return self::$_appFolder;
-    }    
-
+        return self::$appFolder;
+    }
 
     public function run()
     {
 
-        $this->_httpResponse = $this->runMiddlewareChain($this->_httpRequest,$this->_httpResponse );
-        $this->_httpResponse = $this->_foundRoute->run($this->_httpRequest,$this->_httpResponse);
+        /* find route for current request */
+        self::setListRoute(self::$appFolder);
+        $this->findRoute();
 
-        if(!$this->_httpResponse instanceof Response){
-            $content = $this->_httpResponse;
-            $this->_httpResponse = new Response();
-            $this->_httpResponse->setContent($content);            
+        /* set middleware for current request */
+        self::setMiddleware(self::$appFolder);
+        self::setMiddlewareChain($this->request);  
+
+        /* run middleware chain */      
+        $this->response = $this->runMiddlewareChain($this->request,$this->response );
+
+        /* run route */
+        $this->response = $this->_foundRoute->run($this->request,$this->response);
+
+        if(!$this->response instanceof Response){
+            $content = $this->response;
+            $this->response = new Response();
+            $this->response->setContent($content);            
         }
-        // $this->_httpResponse->prepare($this->_httpRequest);
-        // $this->_httpResponse->send();
+        // $this->response->prepare($this->request);
+        // $this->response->send();
         // echo '<pre>';
         // print_r($this->_foundRoute);
         // print_r(self::$middlewareChain);
         // echo '</pre>';
-        return $this->_httpResponse->send();
+        return $this->response->send();
     }
 }
