@@ -36,7 +36,6 @@ class Framework
     {
 
         /* find route for current request */
-        self::setListRoute(self::$appFolder);
         $this->findRoute();
 
         /* set middleware for current request */

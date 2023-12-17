@@ -4,21 +4,15 @@ namespace Framework;
 
 use Framework\Exceptions\MultipleRouteFoundException;
 use Framework\Exceptions\NoRouteFoundException;
+use Framework\Exceptions\AddRouteFoundException;
+// use Framework\Exceptions\NoControllerFoundException;
+use Framework\Route;
 
 
 trait Router
 {
-    public static $listRoute;
-    public $_foundRoute;
-
-    public static function setListRoute($appFolder)
-    {
-        $routeFilePath = $appFolder.'route.json';
-        if (file_exists($routeFilePath)) {
-            $stringRoute = file_get_contents($routeFilePath);
-            self::$listRoute = json_decode($stringRoute);
-        }
-    }
+    public static $listRoute = [];
+    private $_foundRoute;
 
     public function getListRoute()
     {
@@ -30,42 +24,40 @@ trait Router
         return $this->_foundRoute;
     }    
 
-    public static function addRoute($method, $args)
-    {
-        $routeArray['path']            = $args[0];
-        $routeArray['controller']    = $args[1];
-        $routeArray['action']        = $args[2];
-        $routeArray['param']        = $args[3] ?? [];
-        $routeArray['method']        = $method;
-        self::$listRoute[] = (object)($routeArray);
+    public static function addRoute() {
+        $route = new Route();
+        self::$listRoute[] = $route;
+        return $route; // Retourne la référence à l'objet dans $this->routes
     }
 
-    public static function get(...$args)
+    public static function get($path)
     {
-        self::addRoute('GET', $args);
+        return self::addRoute()->setPath($path)->setMethod('GET');
     }
-    public static function post(...$args)
+    public static function post($path)
     {
-        self::addRoute('POST', $args);
+        return self::addRoute()->setPath($path)->setMethod('POST');
     }
-    public static function put(...$args)
+    public static function put($path)
     {
-        self::addRoute('PUT', $args);
+        return self::addRoute()->setPath($path)->setMethod('PUT');
     }
-    public static function delete(...$args)
+    public static function delete($path)
     {
-        self::addRoute('DELETE', $args);
+        return self::addRoute()->setPath($path)->setMethod('DELETE');
     }
+
     public static function all(...$args)
     {
-        self::addRoute('ALL', $args);
+        return self::addRoute()->setPath($args[0])->setMethod('ALL');
     }
 
     private function findRoute()
     {
+        // var_dump(self::$listRoute);die();
         $httpRequest = $this->request;
         $routeFound = array_filter(self::$listRoute, function ($route) use ($httpRequest) {
-            $return = preg_match("#^" . $route->path . "$#", $httpRequest->getPath()) && ($route->method == $httpRequest->getMethod() || $route->method == "ALL");
+            $return = preg_match("#^" . $route->getPath() . "$#", $httpRequest->getPath()) && ($route->getMethod() == $httpRequest->getMethod() || $route->getMethod() == "ALL");
             return $return;
         });
 
@@ -76,7 +68,7 @@ trait Router
         if ($numberRoute == 0) {            
             throw new NoRouteFoundException("No route founded for Path : " . $httpRequest->getPath().", Method : ".$httpRequest->getMethod());
         } else {
-            $route = new Route(array_shift($routeFound));
+            $route = array_shift($routeFound);
             $this->_foundRoute = $route;
         }
     }

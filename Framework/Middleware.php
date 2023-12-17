@@ -4,7 +4,6 @@ namespace Framework;
 
 use Framework\MiddlewareEngine;
 use Framework\HTTPRequest;
-
 use Illuminate\Http\Response;
 
 /* TODO: Maybe implements Middleware interface instead of abstract */
