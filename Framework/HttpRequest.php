@@ -4,7 +4,8 @@ namespace Framework;
 use Framework\Enums\HTTPMethod;
 use Illuminate\Http\Request;
 use Illuminate\Http\Redirect;
-
+use Symfony\Component\HttpFoundation\Session\Session;
+// https://symfony.com/doc/current/session.html
 
 
 class HttpRequest
@@ -70,6 +71,16 @@ class HttpRequest
     {
         $this->_session = $session;
     }
+
+    public function startSession()
+    {
+        if(empty($this->_session)){
+            $session = new Session();
+            $session->start();
+            $this->setSession($session);        
+        }
+        return $this->getSession(); 
+    }    
 
     public function setParams(array $params)
     {

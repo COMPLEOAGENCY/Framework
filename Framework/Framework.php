@@ -11,6 +11,7 @@ class Framework
     use Router, MiddlewareEngine;
     public $request;
     public $response;
+    public $started;
     public static $appFolder;
 
     public function __construct()
@@ -21,6 +22,7 @@ class Framework
 
         $this->request = new HttpRequest();
         $this->response = new Response();
+        $this->started = microtime(true);
 
     }
 
@@ -32,6 +34,10 @@ class Framework
         return self::$appFolder;
     }
 
+    public function getDuration(): float {
+        return floor((microtime(true) - $this->started) * 1000);
+    }
+
     public function run()
     {
 
@@ -39,7 +45,6 @@ class Framework
         $this->findRoute();
 
         /* set middleware for current request */
-        self::setMiddleware(self::$appFolder);
         self::setMiddlewareChain($this->request);  
 
         /* run middleware chain */      
