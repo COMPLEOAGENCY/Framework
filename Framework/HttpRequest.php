@@ -31,7 +31,7 @@ class HttpRequest
 
     public function getUrl()
     {
-        return  $this->request->fullUrl();
+        return  $this->request->getScheme().'://'.$this->getHost().$this->getPath();
     }
 
     public function getPath()
@@ -48,6 +48,23 @@ class HttpRequest
     {
         return  $this->_method->getName();        
     }
+
+    public function getHost()
+    {
+        return $this->request->header('X-Forwarded-Host', $this->request->getHost());  
+    } 
+
+    public function getScheme()
+    {
+        if ($this->request->header('X-HTTPS') === 'on' || $this->request->header('X-HTTPS') == '1') {
+            $scheme = 'https';
+        } elseif ($this->request->secure()) {
+            $scheme = 'https';
+        } else {
+            $scheme = 'http';
+        }        
+        return  $scheme;     
+    }    
 
     public function getParam(string $paramName)
     {

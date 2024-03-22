@@ -24,8 +24,15 @@ class Controller
     {
         $this->_view = new Views();
         $_param = array_merge($this->_param,$_param);
-        echo $this->_view->renderTemplate($viewName, $_param);
+        $this->_httpResponse->setContent($this->_view->renderTemplate($viewName, $_param));
+        return $this->_httpResponse;
     }
+
+    public function render(string $content)
+    {
+        $this->_httpResponse->setContent($content);
+        return $this->_httpResponse;
+    }       
 
     public function addParam($name, $value)
     {
