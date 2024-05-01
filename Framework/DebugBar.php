@@ -2,6 +2,8 @@
 namespace  Framework;
 
 use DebugBar\StandardDebugBar;
+use Framework\DataCollectors\CacheCollector;
+
 
 class DebugBar
 {
@@ -11,6 +13,8 @@ class DebugBar
     private function __construct()
     {
         $this->debugBar = new StandardDebugBar();
+        $cacheCollector = new CacheCollector();
+        $this->debugBar->addCollector($cacheCollector);        
     }
 
     public static function instance()
