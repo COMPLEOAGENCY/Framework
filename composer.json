@@ -26,7 +26,8 @@
         "illuminate/http": "^10.29",
         "monolog/monolog": "^3.4",
         "eftec/bladeone": "^4.9",
-        "maximebf/debugbar": "1.*"
+        "maximebf/debugbar": "1.*",
+        "symfony/cache": "^6.4"
     },
     "config": {
         "allow-plugins": {
