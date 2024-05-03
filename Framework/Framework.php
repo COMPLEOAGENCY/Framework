@@ -4,7 +4,7 @@ namespace Framework;
 
 use Framework\Exceptions\MiddlewareNotFoundException;
 use Framework\Exceptions\AppFolderNotFoundException;
-use Framework\HttpResponse as HttpResponse;
+use Illuminate\Http\Response as Response;
 
 class Framework
 {
@@ -21,7 +21,7 @@ class Framework
         }
 
         $this->request = new HttpRequest();
-        $this->response = new HttpResponse();
+        $this->response = new Response();
         $this->started = microtime(true);
 
     }
@@ -53,9 +53,9 @@ class Framework
         /* run route */
         $this->response = $this->_foundRoute->run($this->request,$this->response);
 
-        if(!$this->response instanceof HttpResponse){
+        if(!$this->response instanceof Response){
             $content = $this->response;
-            $this->response = new HttpResponse();
+            $this->response = new Response();
             $this->response->setContent($content);            
         }
         // $this->response->prepare($this->request);
