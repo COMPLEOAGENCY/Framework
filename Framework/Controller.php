@@ -20,14 +20,11 @@ class Controller
     }
 
 
-    public function view(string $viewName, array $_param = [],$header = null)
+    public function view(string $viewName, array $_param = [])
     {
         $this->_view = new Views();
         $_param = array_merge($this->_param,$_param);
         $this->_httpResponse->setContent($this->_view->renderTemplate($viewName, $_param));
-        if($header){
-            $this->_httpResponse->header('Content-Type', $header);
-        }
         return $this->_httpResponse;
     }
 
