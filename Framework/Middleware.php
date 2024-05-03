@@ -6,7 +6,6 @@ use Framework\MiddlewareEngine;
 use Framework\HttpRequest;
 use Framework\HttpResponse;
 
-
 /* TODO: Maybe implements Middleware interface instead of abstract */
 
 abstract class Middleware {
@@ -27,8 +26,6 @@ abstract class Middleware {
      * @return HttpResponse
      */
     public static function next(HttpRequest $httpRequest, HttpResponse $httpResponse): HttpResponse {  
-    
         return Framework::runMiddlewareChain($httpRequest, $httpResponse);
-
     }
 }

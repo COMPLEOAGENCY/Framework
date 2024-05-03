@@ -4,7 +4,6 @@ namespace Framework;
 
 use Framework\Exceptions\MiddlewareNotFoundException;
 use Framework\MiddlewareRegistry;
-use Framework\DebugBar;
 
 trait middlewareEngine
 {
@@ -73,14 +72,6 @@ trait middlewareEngine
 
         $firstMiddlewareInfo = array_shift(self::$middlewareChain);
         $middlewareClass = $firstMiddlewareInfo['middleware'] ?? null;
-        if(DebugBar::isSet()){
-            $debugbar = DebugBar::Instance()->getDebugBar();
-            // check if isset Middleware in debug bar
-            if($debugbar['time']->hasStartedMeasure('Middleware')){
-                $debugbar['time']->stopMeasure('Middleware');
-            }
-            $debugbar['time']->startMeasure('Middleware', 'Middleware '.$middlewareClass);
-        }         
 
         if (!$middlewareClass) {
             return $httpResponse;
