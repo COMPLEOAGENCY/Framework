@@ -3,7 +3,6 @@ namespace Framework;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\Cache\CacheItem;
 
 class CacheManager
 {
@@ -12,7 +11,7 @@ class CacheManager
 
     private function __construct()
     {
-        // Initialise ici avec l'adaptateur de cache souhaité
+        // Initialisez ici avec l'adaptateur de cache souhaité
         $this->cacheAdapter = new FilesystemAdapter();
     }
 
@@ -24,28 +23,16 @@ class CacheManager
         return self::$instance;
     }
 
+    public static function isSet()
+    {
+        return self::$instance !== null;
+    }
+
     public function getCacheAdapter()
     {
         return $this->cacheAdapter;
     }
-
-    public static function clear()
-    {
-        if (self::$instance !== null) {
-            self::instance()->cacheAdapter->clear();
-        }
-        return;
-    }
-
-    public function logDebugBar($key, $data, $expiration)
-    {
-        if ($expiration > 0) {
-            if (class_exists('Framework\DebugBar') && DebugBar::isSet()) {
-                $debugbar = DebugBar::Instance()->getDebugBar();
-                $debugbar["cache"]->addCacheItem($key, json_encode($data));
-                // $debugbar["request"]->addArray($key, array($data));
-                // $debugbar["messages"]->addMessage($key, json_decode(json_encode($data),true));
-            }
-        }
-    }
 }
+
+
+
