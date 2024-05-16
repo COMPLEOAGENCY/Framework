@@ -1,26 +1,25 @@
 <?php
 
 namespace Framework;
+
 use Framework\Enums\HTTPMethod;
 use Illuminate\Http\Request;
-use Illuminate\Http\Redirect;
 use Symfony\Component\HttpFoundation\Session\Session;
-// https://symfony.com/doc/current/session.html
-
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy;
 
 class HttpRequest
 {
-
-    private         $_param;
-    private         $_method;
-    private         $_route;
-    public          $_session;
-    public          $request;
-    public          $path;
+    private $_param;
+    private $_method;
+    private $_route;
+    public $_session;
+    public $request;
+    public $path;
 
     function __construct()
     {
-
         $this->request = Request::capture();
         $this->_method = HTTPMethod::fromValue($this->request->method());
         $this->_param = array();
@@ -31,7 +30,7 @@ class HttpRequest
 
     public function getUrl()
     {
-        return  $this->request->getScheme().'://'.$this->getHost().$this->getPath();
+        return $this->request->getScheme() . '://' . $this->getHost() . $this->getPath();
     }
 
     public function getPath()
@@ -41,38 +40,32 @@ class HttpRequest
 
     public function setPath($path)
     {
-        $this->path = "/".ltrim($path,"/");
-    }    
+        $this->path = "/" . ltrim($path, "/");
+    }
 
     public function getMethod()
     {
-        return  $this->_method->getName();        
+        return $this->_method->getName();
     }
 
     public function getHost()
     {
-        return $this->request->header('X-Forwarded-Host', $this->request->getHost());  
-    } 
+        return $this->request->header('X-Forwarded-Host', $this->request->getHost());
+    }
 
     public function getScheme()
     {
         if ($this->request->header('X-HTTPS') === 'on' || $this->request->header('X-HTTPS') == '1') {
-            $scheme = 'https';
+            return 'https';
         } elseif ($this->request->secure()) {
-            $scheme = 'https';
-        } else {
-            $scheme = 'http';
-        }        
-        return  $scheme;     
-    }    
+            return 'https';
+        }
+        return 'http';
+    }
 
     public function getParam(string $paramName)
     {
-        if (isset($this->_param[$paramName])) {
-            return $this->_param[$paramName];
-        } else {
-            return null;
-        }
+        return $this->_param[$paramName] ?? null;
     }
 
     public function getParams()
@@ -84,6 +77,7 @@ class HttpRequest
     {
         return $this->_session;
     }
+
     public function setSession(object $session)
     {
         $this->_session = $session;
@@ -91,31 +85,71 @@ class HttpRequest
 
     public function startSession()
     {
-        if(empty($this->_session)){
-            $session = new Session();
-            $session->start();
-            $this->setSession($session);        
+        if (empty($this->_session)) {
+            // Récupérer l'identifiant de session depuis l'en-tête HTTP ou les paramètres d'URL
+            $sessionId = $this->request->header('X-Session-ID', $this->request->get('session_id'));
+
+            try {
+                $redis = RedisConnection::instance()->getRedis();
+                $redisHandler = new RedisSessionHandler($redis, ['prefix' => 'session_']);
+                $storage = new NativeSessionStorage([], $redisHandler);
+                $session = new Session($storage);
+
+                // Si un identifiant de session est présent, le définir
+                if ($sessionId) {
+                    $session->setId($sessionId);
+                }
+
+                $session->start();
+                $this->setSession($session);
+
+            } catch (\Exception $e) {
+                // Utiliser le gestionnaire de sessions par défaut basé sur le système de fichiers
+                $session = new Session();
+                $session->start();
+                $this->setSession($session);
+            }
         }
-        return $this->getSession(); 
-    }    
+        return $this->getSession();
+    }
+
+    public function getSessionHandler()
+    {
+        if ($this->_session) {
+            $reflection = new \ReflectionClass($this->_session);
+            $property = $reflection->getProperty('storage');
+            $property->setAccessible(true);
+            $storage = $property->getValue($this->_session);
+
+            if ($storage instanceof NativeSessionStorage) {
+                $saveHandler = $storage->getSaveHandler();
+
+                if ($saveHandler instanceof SessionHandlerProxy) {
+                    $realHandler = $saveHandler->getHandler();
+                    return $realHandler;
+                }
+
+                return $saveHandler;
+            }
+        }
+        return null;
+    }
 
     public function setParams(array $params)
     {
-        foreach ($params as $oneParams => $value) {
-            $this->_param[$oneParams] = $value;
+        foreach ($params as $oneParam => $value) {
+            $this->_param[$oneParam] = $value;
         }
-        return;
     }
 
     public function deleteParam(string $name)
     {
         unset($this->_param[$name]);
-        return;
     }
+
     public function setParam(string $name, $value)
     {
         $this->_param[$name] = $value;
-        return;
     }
 
     public function setRoute($route)
@@ -128,30 +162,25 @@ class HttpRequest
         switch ($method) {
             case "GET":
             case "DELETE":
-                // $this->_param = $this->request->query();                
                 if (!empty($this->request->query())) {
                     $this->_param = array_merge($this->_param, $this->request->query());
-                } // hack
+                }
                 break;
             case "POST":
             case "PUT":
-                // $this->_param = $this->request->post();
                 if (!empty($this->request->post())) {
                     $this->_param = array_merge($this->_param, $this->request->post());
-                } // hack
+                }
                 break;
             case "ALL":
-                // $this->_param = $this->request->all();
-                // var_dump( $this->_param);exit;
                 if (!empty($this->request->all())) {
                     $this->_param = array_merge($this->_param, $this->request->all());
-                } // hack
+                }
                 break;
         }
         if (isset($this->_param['query'])) {
             unset($this->_param['query']);
         }
-        // \Classes\logIt('Params when bind parameters Framework for this ' . $this->getUrl() . '', 'debug', [$this->_param, '$_REQUEST' => $_REQUEST]);
     }
 
     public function __call($method, $args)

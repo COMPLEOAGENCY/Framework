@@ -1,9 +1,10 @@
 <?php
+
 namespace Framework;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\Cache\CacheItem;
 
 class CacheManager
 {
@@ -12,8 +13,7 @@ class CacheManager
 
     private function __construct()
     {
-        // Initialise ici avec l'adaptateur de cache souhaité
-        $this->cacheAdapter = new FilesystemAdapter();
+        $this->initializeCacheAdapter();
     }
 
     public static function instance()
@@ -22,6 +22,17 @@ class CacheManager
             self::$instance = new CacheManager();
         }
         return self::$instance;
+    }
+
+    private function initializeCacheAdapter()
+    {
+        try {
+            $redis = RedisConnection::instance()->getRedis();
+            $this->cacheAdapter = new RedisAdapter($redis, 'cache_', 0);
+        } catch (\Exception $e) {
+            // Utiliser le gestionnaire de cache par défaut basé sur le système de fichiers
+            $this->cacheAdapter = new FilesystemAdapter();
+        }
     }
 
     public function getCacheAdapter()
@@ -43,8 +54,6 @@ class CacheManager
             if (class_exists('Framework\DebugBar') && DebugBar::isSet()) {
                 $debugbar = DebugBar::Instance()->getDebugBar();
                 $debugbar["cache"]->addCacheItem($key, json_encode($data));
-                // $debugbar["request"]->addArray($key, array($data));
-                // $debugbar["messages"]->addMessage($key, json_decode(json_encode($data),true));
             }
         }
     }
