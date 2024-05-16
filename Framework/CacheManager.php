@@ -26,10 +26,18 @@ class CacheManager
 
     private function initializeCacheAdapter()
     {
-        try {
-            $redis = RedisConnection::instance()->getRedis();
-            $this->cacheAdapter = new RedisAdapter($redis, 'cache_', 0);
-        } catch (\Exception $e) {
+        $redisConnection = RedisConnection::instance();
+        $redis = $redisConnection->getRedis();
+
+        if ($redis) {
+            try {
+                $this->cacheAdapter = new RedisAdapter($redis, 'cache_', 0);
+            } catch (\Exception $e) {
+                // Log the exception or handle it as needed
+                // Logger::error('Unable to initialize RedisAdapter: ' . $e->getMessage());
+                $this->cacheAdapter = new FilesystemAdapter();
+            }
+        } else {
             // Utiliser le gestionnaire de cache par défaut basé sur le système de fichiers
             $this->cacheAdapter = new FilesystemAdapter();
         }

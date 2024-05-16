@@ -86,24 +86,33 @@ class HttpRequest
     public function startSession()
     {
         if (empty($this->_session)) {
-            // Récupérer l'identifiant de session depuis l'en-tête HTTP ou les paramètres d'URL
-            $sessionId = $this->request->header('X-Session-ID', $this->request->get('session_id'));
+            // Récupérer l'identifiant de session depuis les paramètres de l'URL
+            $sessionId = $this->request->get('session_id');
 
-            try {
-                $redis = RedisConnection::instance()->getRedis();
-                $redisHandler = new RedisSessionHandler($redis, ['prefix' => 'session_']);
-                $storage = new NativeSessionStorage([], $redisHandler);
-                $session = new Session($storage);
+            $redisConnection = RedisConnection::instance();
+            $redis = $redisConnection->getRedis();
 
-                // Si un identifiant de session est présent, le définir
-                if ($sessionId) {
-                    $session->setId($sessionId);
+            if ($redis) {
+                try {
+                    $redisHandler = new RedisSessionHandler($redis, ['prefix' => 'session_']);
+                    $storage = new NativeSessionStorage([], $redisHandler);
+                    $session = new Session($storage);
+
+                    // Si un identifiant de session est présent, le définir
+                    if ($sessionId) {
+                        $session->setId($sessionId);
+                    }
+
+                    $session->start();
+                    $this->setSession($session);
+
+                } catch (\Exception $e) {
+                    // Utiliser le gestionnaire de sessions par défaut basé sur le système de fichiers
+                    $session = new Session();
+                    $session->start();
+                    $this->setSession($session);
                 }
-
-                $session->start();
-                $this->setSession($session);
-
-            } catch (\Exception $e) {
+            } else {
                 // Utiliser le gestionnaire de sessions par défaut basé sur le système de fichiers
                 $session = new Session();
                 $session->start();
