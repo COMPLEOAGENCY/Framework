@@ -4,17 +4,12 @@ namespace Framework;
 
 use Framework\Enums\HTTPMethod;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
-use Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy;
 
 class HttpRequest
 {
     private $_param;
     private $_method;
     private $_route;
-    public $_session;
     public $request;
     public $path;
 
@@ -23,7 +18,6 @@ class HttpRequest
         $this->request = Request::capture();
         $this->_method = HTTPMethod::fromValue($this->request->method());
         $this->_param = array();
-        $this->_session = null;
         $this->path = '/' . ltrim($this->request->getPathInfo(), "/");
         $this->bindParam();
     }
@@ -73,75 +67,9 @@ class HttpRequest
         return $this->_param;
     }
 
-    public function getSession()
+    public function getRoute()
     {
-        return $this->_session;
-    }
-
-    public function setSession(object $session)
-    {
-        $this->_session = $session;
-    }
-
-    public function startSession()
-    {
-        if (empty($this->_session)) {
-            // Récupérer l'identifiant de session depuis les paramètres de l'URL
-            $sessionId = $this->request->get('session_id');
-
-            $redisConnection = RedisConnection::instance();
-            $redis = $redisConnection->getRedis();
-
-            if ($redis) {
-                try {
-                    $redisHandler = new RedisSessionHandler($redis, ['prefix' => 'session_']);
-                    $storage = new NativeSessionStorage([], $redisHandler);
-                    $session = new Session($storage);
-
-                    // Si un identifiant de session est présent, le définir
-                    if ($sessionId) {
-                        $session->setId($sessionId);
-                    }
-
-                    $session->start();
-                    $this->setSession($session);
-
-                } catch (\Exception $e) {
-                    // Utiliser le gestionnaire de sessions par défaut basé sur le système de fichiers
-                    $session = new Session();
-                    $session->start();
-                    $this->setSession($session);
-                }
-            } else {
-                // Utiliser le gestionnaire de sessions par défaut basé sur le système de fichiers
-                $session = new Session();
-                $session->start();
-                $this->setSession($session);
-            }
-        }
-        return $this->getSession();
-    }
-
-    public function getSessionHandler()
-    {
-        if ($this->_session) {
-            $reflection = new \ReflectionClass($this->_session);
-            $property = $reflection->getProperty('storage');
-            $property->setAccessible(true);
-            $storage = $property->getValue($this->_session);
-
-            if ($storage instanceof NativeSessionStorage) {
-                $saveHandler = $storage->getSaveHandler();
-
-                if ($saveHandler instanceof SessionHandlerProxy) {
-                    $realHandler = $saveHandler->getHandler();
-                    return $realHandler;
-                }
-
-                return $saveHandler;
-            }
-        }
-        return null;
+        return $this->_route;
     }
 
     public function setParams(array $params)
@@ -159,6 +87,14 @@ class HttpRequest
     public function setParam(string $name, $value)
     {
         $this->_param[$name] = $value;
+    }
+
+    public function startSession() {
+        return SessionHandler::getInstance()->startSession();
+    }    
+
+    public function getSession() {
+        return SessionHandler::getInstance()->getSession();
     }
 
     public function setRoute($route)
