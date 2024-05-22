@@ -4,7 +4,6 @@ namespace Framework;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class CacheManager
 {
@@ -19,7 +18,7 @@ class CacheManager
     public static function instance()
     {
         if (self::$instance === null) {
-            self::$instance = new CacheManager();
+            self::$instance = new self();
         }
         return self::$instance;
     }
@@ -33,12 +32,11 @@ class CacheManager
             try {
                 $this->cacheAdapter = new RedisAdapter($redis, 'cache_', 0);
             } catch (\Exception $e) {
-                // Log the exception or handle it as needed
-                // Logger::error('Unable to initialize RedisAdapter: ' . $e->getMessage());
+                // Handle the exception and fallback to FilesystemAdapter
                 $this->cacheAdapter = new FilesystemAdapter();
             }
         } else {
-            // Utiliser le gestionnaire de cache par défaut basé sur le système de fichiers
+            // Use the default file system cache adapter
             $this->cacheAdapter = new FilesystemAdapter();
         }
     }
@@ -51,16 +49,15 @@ class CacheManager
     public static function clear()
     {
         if (self::$instance !== null) {
-            self::instance()->cacheAdapter->clear();
+            self::$instance->cacheAdapter->clear();
         }
-        return;
     }
 
     public function logDebugBar($key, $data, $expiration)
     {
-        if ($expiration > 0) {
-            if (class_exists('Framework\DebugBar') && DebugBar::isSet()) {
-                $debugbar = DebugBar::Instance()->getDebugBar();
+        if ($expiration > 0 && class_exists('Framework\DebugBar') && DebugBar::isSet()) {
+            $debugbar = DebugBar::instance()->getDebugBar();
+            if ($debugbar && isset($debugbar["cache"])) {
                 $debugbar["cache"]->addCacheItem($key, json_encode($data));
             }
         }

@@ -50,4 +50,24 @@ class RedisConnection
     {
         return $this->redis;
     }
+
+    public function checkRedisStatus()
+    {
+        if ($this->redis === null) {
+            return false;
+        }
+
+        try {
+            // Envoie une commande PING à Redis
+            if ($this->redis->ping() === '+PONG') {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            // Log the exception or handle it as needed
+            // Logger::error('Redis ping failed: ' . $e->getMessage());
+            return false;
+        }
+    }
 }

@@ -7,54 +7,48 @@ use Illuminate\Http\Request;
 
 class HttpRequest
 {
-    private $_param;
+    private $_param = [];
     private $_method;
     private $_route;
     public $request;
     public $path;
 
-    function __construct()
+    public function __construct()
     {
         $this->request = Request::capture();
         $this->_method = HTTPMethod::fromValue($this->request->method());
-        $this->_param = array();
         $this->path = '/' . ltrim($this->request->getPathInfo(), "/");
         $this->bindParam();
     }
 
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->request->getScheme() . '://' . $this->getHost() . $this->getPath();
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
 
-    public function setPath($path)
+    public function setPath(string $path): void
     {
         $this->path = "/" . ltrim($path, "/");
     }
 
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->_method->getName();
     }
 
-    public function getHost()
+    public function getHost(): string
     {
         return $this->request->header('X-Forwarded-Host', $this->request->getHost());
     }
 
-    public function getScheme()
+    public function getScheme(): string
     {
-        if ($this->request->header('X-HTTPS') === 'on' || $this->request->header('X-HTTPS') == '1') {
-            return 'https';
-        } elseif ($this->request->secure()) {
-            return 'https';
-        }
-        return 'http';
+        return $this->request->isSecure() ? 'https' : 'http';
     }
 
     public function getParam(string $paramName)
@@ -62,7 +56,7 @@ class HttpRequest
         return $this->_param[$paramName] ?? null;
     }
 
-    public function getParams()
+    public function getParams(): array
     {
         return $this->_param;
     }
@@ -72,60 +66,55 @@ class HttpRequest
         return $this->_route;
     }
 
-    public function setParams(array $params)
+    public function setParams(array $params): void
     {
-        foreach ($params as $oneParam => $value) {
-            $this->_param[$oneParam] = $value;
-        }
+        $this->_param = array_merge($this->_param, $params);
     }
 
-    public function deleteParam(string $name)
+    public function deleteParam(string $name): void
     {
         unset($this->_param[$name]);
     }
 
-    public function setParam(string $name, $value)
+    public function setParam(string $name, $value): void
     {
         $this->_param[$name] = $value;
     }
 
-    public function startSession() {
+    public function startSession()
+    {
         return SessionHandler::getInstance()->startSession();
-    }    
+    }
 
-    public function getSession() {
+    public function getSession()
+    {
         return SessionHandler::getInstance()->getSession();
     }
 
-    public function setRoute($route)
+    public function setRoute($route): void
     {
         $this->_route = $route;
     }
 
-    public function bindParam($method = "ALL")
+    private function bindParam(string $method = "ALL"): void
     {
-        switch ($method) {
+        $params = [];
+        switch (strtoupper($method)) {
             case "GET":
             case "DELETE":
-                if (!empty($this->request->query())) {
-                    $this->_param = array_merge($this->_param, $this->request->query());
-                }
+                $params = $this->request->query();
                 break;
             case "POST":
             case "PUT":
-                if (!empty($this->request->post())) {
-                    $this->_param = array_merge($this->_param, $this->request->post());
-                }
+                $params = $this->request->post();
                 break;
             case "ALL":
-                if (!empty($this->request->all())) {
-                    $this->_param = array_merge($this->_param, $this->request->all());
-                }
+            default:
+                $params = $this->request->all();
                 break;
         }
-        if (isset($this->_param['query'])) {
-            unset($this->_param['query']);
-        }
+        $this->_param = array_merge($this->_param, $params);
+        unset($this->_param['query']);
     }
 
     public function __call($method, $args)
@@ -136,3 +125,4 @@ class HttpRequest
         return false;
     }
 }
+
