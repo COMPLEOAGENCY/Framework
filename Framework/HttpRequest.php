@@ -48,10 +48,24 @@ class HttpRequest
 
     public function getScheme(): string
     {
-        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
+        // Vérifie l'en-tête X-HTTPS
+        $xHttps = $this->request->header('X-HTTPS');
+        if ($xHttps !== null && $xHttps === '1') {
+            return 'https';
+        }
+    
+        // Vérifie l'en-tête X-Forwarded-Proto
+        $scheme = $this->request->header('X-Forwarded-Proto');
+        if ($scheme !== null) {
+            return $scheme;
+        }
+    
+        // Méthode de secours
+        return $this->request->isSecure() ? 'https' : 'http';
     }
     
-
+    
+    
     public function getParam(string $paramName)
     {
         return $this->_param[$paramName] ?? null;
