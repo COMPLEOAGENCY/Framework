@@ -1,9 +1,10 @@
 <?php
-namespace  Framework;
+
+namespace Framework;
 
 use DebugBar\StandardDebugBar;
 use Framework\DataCollectors\CacheCollector;
-
+use Framework\DataCollectors\ServerVariablesCollector;
 
 class DebugBar
 {
@@ -13,8 +14,12 @@ class DebugBar
     private function __construct()
     {
         $this->debugBar = new StandardDebugBar();
+        
         $cacheCollector = new CacheCollector();
-        $this->debugBar->addCollector($cacheCollector);        
+        $this->debugBar->addCollector($cacheCollector);
+
+        $serverVariablesCollector = new ServerVariablesCollector();
+        $this->debugBar->addCollector($serverVariablesCollector);
     }
 
     public static function instance()
@@ -27,16 +32,14 @@ class DebugBar
 
     public static function isSet()
     {
-        if (self::$instance === null) {
-            return false;
-        }
-        return true;
-    }    
+        return self::$instance !== null;
+    }
 
     public function getDebugBar()
     {
         return $this->debugBar;
     }
 }
+
 
 
