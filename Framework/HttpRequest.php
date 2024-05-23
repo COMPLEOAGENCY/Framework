@@ -48,8 +48,9 @@ class HttpRequest
 
     public function getScheme(): string
     {
-        return $this->request->isSecure() ? 'https' : 'http';
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
     }
+    
 
     public function getParam(string $paramName)
     {
