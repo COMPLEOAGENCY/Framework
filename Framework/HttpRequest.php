@@ -48,29 +48,14 @@ class HttpRequest
 
     public function getScheme(): string
     {
-        // Liste des en-têtes à vérifier
-        $headers = [
-            'X-HTTPS' => 'https',
-            'HTTP_X_HTTPS' => 'https',
-            'X-Forwarded-Proto' => null,
-            'REQUEST_SCHEME' => null
-        ];
-        
-        // Vérifie chaque en-tête
-        foreach ($headers as $header => $httpsValue) {
-            $value = $this->request->header($header);
-            if ($value !== null) {
-                // Si l'en-tête doit être '1' pour HTTPS
-                if ($httpsValue !== null && $value === '1') {
-                    return 'https';
-                }
-                // Si l'en-tête doit être 'http' ou 'https'
-                if ($httpsValue === null && ($value === 'http' || $value === 'https')) {
-                    return $value;
-                }
-            }
+        // proxy redirection detection in header
+        if($this->request->header('X-HTTPS') == '1'){
+            return 'https';
         }
-    
+        // check server variable for https redirection
+        if ($this->request->server('HTTP_X_HTTPS') == '1') {
+            return 'https';
+        }
         // Méthode de secours
         return $this->request->isSecure() ? 'https' : 'http';
     }
