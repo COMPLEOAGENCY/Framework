@@ -23,7 +23,7 @@ class HttpRequest
 
     public function getUrl(): string
     {
-        return $this->request->getScheme() . '://' . $this->getHost() . $this->getPath();
+        return $this->getScheme() . '://' . $this->getHost() . $this->getPath();
     }
 
     public function getPath(): string
