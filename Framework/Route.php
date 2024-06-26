@@ -43,6 +43,18 @@ class Route
         return $this;
     }    
 
+    public function setMiddleware($middlewares)
+    {
+        $middlewareRegistry = new \Framework\MiddlewareRegistry();
+        $middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
+        foreach ($middlewares as $middlewareClass) {
+            $middlewareRegistry = $middlewareRegistry->setPath($this->_path)->setMiddlewareClass($middlewareClass);
+            \Framework\Framework::$listMiddleware[] = $middlewareRegistry;
+        }
+    
+        return $this;
+    }    
+
     public function getMethod()
     {
         return $this->_method;

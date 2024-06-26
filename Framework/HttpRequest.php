@@ -26,6 +26,11 @@ class HttpRequest
         return $this->getScheme() . '://' . $this->getHost() . $this->getPath();
     }
 
+    public function getFullUrl(): string
+    {
+        return  trim($this->getUrl()."?".http_build_query($this->query()),"?"); 
+    }
+
     public function getPath(): string
     {
         return $this->path;
