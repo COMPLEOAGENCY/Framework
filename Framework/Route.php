@@ -47,13 +47,26 @@ class Route
     {
         $middlewareRegistry = new \Framework\MiddlewareRegistry();
         $middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
+        
         foreach ($middlewares as $middlewareClass) {
-            $middlewareRegistry = $middlewareRegistry->setPath($this->_path)->setMiddlewareClass($middlewareClass);
-            \Framework\Framework::$listMiddleware[] = $middlewareRegistry;
+            // Vérifie si le middleware existe déjà dans la liste
+            $exists = false;
+            foreach (\Framework\Framework::$listMiddleware as $registeredMiddleware) {
+                if ($registeredMiddleware->getMiddlewareClass() === $middlewareClass) {
+                    $exists = true;
+                    break;
+                }
+            }
+            
+            if (!$exists) {
+                $middlewareRegistry = $middlewareRegistry->setPath($this->_path)->setMiddlewareClass($middlewareClass);
+                \Framework\Framework::$listMiddleware[] = $middlewareRegistry;
+            }
         }
     
         return $this;
-    }    
+    }
+    
 
     public function getMethod()
     {

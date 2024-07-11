@@ -35,6 +35,11 @@ class QueueManager
         }
     }
 
+    public function getQueueAdapter()
+    {
+        return $this->queueAdapter;
+    }
+
     public function add($queue, $data)
     {
         if ($this->redis) {
