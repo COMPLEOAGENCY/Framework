@@ -45,23 +45,15 @@ class Route
 
     public function setMiddleware($middlewares)
     {
-        $middlewareRegistry = new \Framework\MiddlewareRegistry();
+        $frameworkInstance = new \Framework\Framework(); // Créer une instance de la classe Framework
         $middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
         
         foreach ($middlewares as $middlewareClass) {
-            // Vérifie si le middleware existe déjà dans la liste
-            $exists = false;
-            foreach (\Framework\Framework::$listMiddleware as $registeredMiddleware) {
-                if ($registeredMiddleware->getMiddlewareClass() === $middlewareClass) {
-                    $exists = true;
-                    break;
-                }
-            }
-            
-            if (!$exists) {
-                $middlewareRegistry = $middlewareRegistry->setPath($this->_path)->setMiddlewareClass($middlewareClass);
-                \Framework\Framework::$listMiddleware[] = $middlewareRegistry;
-            }
+            $middlewareRegistry = new \Framework\MiddlewareRegistry();
+            $middlewareRegistry->setPath($this->_path)->setMiddlewareClass($middlewareClass);
+
+            // Utiliser la méthode addMiddleware de l'instance de Framework pour ajouter le middleware
+            $frameworkInstance->addMiddleware($middlewareRegistry);
         }
     
         return $this;
