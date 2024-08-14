@@ -51,6 +51,11 @@ class HttpRequest
         return $this->request->header('X-Forwarded-Host', $this->request->getHost());
     }
 
+    public function getClientIp(): string
+    {
+        return $this->request->header('X-Forwarded-For', $this->request->getClientIp());
+    }     
+
     public function getScheme(): string
     {
         // proxy redirection detection in header
