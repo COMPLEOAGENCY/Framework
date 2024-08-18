@@ -33,7 +33,7 @@ class RedisConnection
 
         try {
             $this->redis = new \Redis();
-            $this->redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_NONE);
+            $this->redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_PHP);
             $this->redis->connect($redisHost, $redisPort);
 
             // Vérifier si la connexion à Redis fonctionne
