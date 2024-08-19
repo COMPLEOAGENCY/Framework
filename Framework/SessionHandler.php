@@ -41,7 +41,7 @@ class SessionHandler
 
         // Synchronisation via un verrou pour éviter les problèmes d'accès concurrentiel
         while (self::$instanceLock) {
-            usleep(10000); // Attendre 10 millisecondes avant de réessayer
+            usleep(5000); // Attendre 5 millisecondes avant de réessayer
         }
 
         // Bloquer l'instance pour empêcher l'initialisation simultanée
@@ -74,7 +74,7 @@ class SessionHandler
     
         // Synchronisation via un verrou pour éviter les conflits d'initialisation de la session
         while (self::$sessionLock) {
-            usleep(10000); // Attendre 10 millisecondes avant de réessayer
+            usleep(5000); // Attendre 5 millisecondes avant de réessayer
         }
     
         // Bloquer la session pour empêcher l'initialisation simultanée
