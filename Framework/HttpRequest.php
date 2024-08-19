@@ -110,7 +110,7 @@ class HttpRequest
 
     public function getSession()
     {
-        return SessionHandler::getInstance()->getSession();
+        return SessionHandler::getInstance();
     }
 
     public function setRoute($route): void
