@@ -103,9 +103,10 @@ class HttpRequest
         $this->_param[$name] = $value;
     }
 
+    // to do : deprecated this function
     public function startSession()
     {
-        return SessionHandler::getInstance()->startSession();
+        $this->getSession();
     }
 
     public function getSession()
