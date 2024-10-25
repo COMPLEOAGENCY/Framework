@@ -1,5 +1,5 @@
 <?php
-
+// Path: src/vendor/framework/framework/Framework/CacheManager.php
 namespace Framework;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -55,7 +55,7 @@ class CacheManager
 
     public function logDebugBar($key, $data, $expiration)
     {
-        if ($expiration > 0 && class_exists('Framework\DebugBar') && DebugBar::isSet()) {
+        if (class_exists('Framework\DebugBar') && DebugBar::isSet()) {
             $debugbar = DebugBar::instance()->getDebugBar();
             if ($debugbar && isset($debugbar["cache"])) {
                 $debugbar["cache"]->addCacheItem($key, json_encode($data));
