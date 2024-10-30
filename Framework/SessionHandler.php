@@ -55,24 +55,44 @@ class SessionHandler
 
     /**
      * Initialise le stockage de la session avec Redis ou bascule sur les fichiers
-     *
-     * @return NativeSessionStorage
      */
     private function initializeStorage(): void
     {
         try {
-            // Essayer de créer un handler Redis
-            $redisConnection = RedisConnection::instance();  // Supposez que RedisConnection gère Redis
-            $redis = $redisConnection->getRedis();
+            // Vérifier d'abord le driver de session configuré
+            $sessionDriver = $_ENV['SESSION_DRIVER'] ?? 'native';
 
-            if ($redis) {
-                $redisHandler = new RedisSessionHandler($redis, ['prefix' => 'session_:']);
-                $this->storageHandler = new NativeSessionStorage([], $redisHandler);
-            } else {
-                trigger_error("Bascule sur le système de fichiers.");
-                $fileHandler = new NativeFileSessionHandler(sys_get_temp_dir());   
-                $this->storageHandler = new NativeSessionStorage([], $fileHandler);             
+            if ($sessionDriver === 'redis') {
+                // Tentative d'utilisation de Redis pour les sessions
+                $redisConnection = RedisConnection::instance();
+                $redis = $redisConnection->getRedis();
+
+                if ($redis) {
+                    $redisHandler = new RedisSessionHandler($redis, ['prefix' => 'session_:']);
+                    $this->storageHandler = new NativeSessionStorage([], $redisHandler);
+                    return;
+                }
+                
+                // Si on arrive ici avec redis demandé mais connexion échouée, on log l'erreur
+                trigger_error("Session Redis demandée mais impossible de se connecter. Bascule sur le système de fichiers.");
             }
+
+            $sessionStarted = (session_status() === PHP_SESSION_ACTIVE);
+        
+            $options = [
+                'session.storage.native_options' => [
+                    'use_strict_mode' => true,
+                    'use_cookies' => true,
+                    'use_only_cookies' => true,
+                    'cookie_httponly' => true,
+                    // On configure auto_start selon l'état de la session
+                    'auto_start' => !$sessionStarted
+                ]
+            ];
+
+            // Utilisation du gestionnaire de fichiers par défaut ou en fallback
+            $fileHandler = new NativeFileSessionHandler(sys_get_temp_dir());
+            $this->storageHandler = new NativeSessionStorage($options, $fileHandler);
 
         } catch (\Exception $e) {
             throw new \Exception("Cannot Initialize Session Storage: " . $e->getMessage());
