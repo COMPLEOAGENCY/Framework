@@ -1,4 +1,5 @@
 <?php
+// Path: src/vendor/framework/framework/Framework/SessionHandler.php
 
 namespace Framework;
 
@@ -43,6 +44,9 @@ class SessionHandler
     {
         if (self::$session === null || !(self::$session instanceof Session)) {
             // Initialiser le stockage si ce n'est pas déjà fait
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }            
             $this->initializeStorage();
             self::$session = new Session($this->storageHandler);
         }
