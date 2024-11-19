@@ -9,9 +9,12 @@ class QueueManager
     private static $instance = null;
     private $queueAdapter;
     private $redis;
+    private $sub;
 
     private function __construct()
     {
+        $this->sub = $_ENV['REDIS_QUEUE_PREFIX'] ?? 'queue_';
+        $this->sub = trim($this->sub, ':').':';
         $this->initializeQueueAdapter();
     }
 
@@ -43,7 +46,7 @@ class QueueManager
     public function add($queue, $data)
     {
         if ($this->redis) {
-            $this->redis->rpush('queue_:'.$queue, json_encode($data));
+            $this->redis->rpush($this->sub.$queue, json_encode($data));
         } else {
             // Fallback to filesystem queue
             $item = $this->queueAdapter->getItem($queue);
@@ -57,7 +60,7 @@ class QueueManager
     public function remove($queue)
     {
         if ($this->redis) {
-            $data = $this->redis->lpop('queue_:'.$queue);
+            $data = $this->redis->lpop($this->sub.$queue);
             if ($data) {
                 return json_decode($data, true);
             }
@@ -69,7 +72,7 @@ class QueueManager
                 $queue = array_shift($queueData);
                 $item->set($queueData);
                 $this->queueAdapter->save($item);
-                return $queue;
+                return json_decode($queue, true);
             }
         }
         return null;
@@ -79,7 +82,7 @@ class QueueManager
     {
         if (self::$instance !== null) {
             if (self::$instance->redis) {
-                self::$instance->redis->del('queue_:'.$queue);
+                self::$instance->redis->del(self::$instance->sub.':'.$queue);
             } else {
                 self::$instance->queueAdapter->deleteItem($queue);
             }

@@ -13,11 +13,13 @@ class SessionHandler
     private static $instance = null;  // Singleton instance
     private static $session = null;   // Propriété statique pour la session Symfony
     private $storageHandler = null;   // Handler pour le backend de session
+    private $sub;
 
     // Constructeur privé pour empêcher l'instanciation directe
     private function __construct()
     {
         // Ne rien faire ici, tout sera fait dans startSession()
+        $this->sub = $_ENV['REDIS_SESSION_PREFIX'] ?? 'session_:';
     }
 
     /**
@@ -72,7 +74,7 @@ class SessionHandler
                 $redis = $redisConnection->getRedis();
 
                 if ($redis) {
-                    $redisHandler = new RedisSessionHandler($redis, ['prefix' => 'session_:']);
+                    $redisHandler = new RedisSessionHandler($redis, ['prefix' => $this->sub]);
                     $this->storageHandler = new NativeSessionStorage([], $redisHandler);
                     return;
                 }

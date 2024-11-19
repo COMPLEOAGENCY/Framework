@@ -9,10 +9,12 @@ class CacheManager
 {
     private static $instance = null;
     private $cacheAdapter;
+    private $sub;
 
     private function __construct()
     {
-        $this->initializeCacheAdapter();
+        $this->sub =  $_ENV['REDIS_CACHE_PREFIX'] ?? 'cache_';
+        $this->initializeCacheAdapter();                
     }
 
     public static function instance()
@@ -30,13 +32,14 @@ class CacheManager
 
         if ($redis) {
             try {
-                $this->cacheAdapter = new RedisAdapter($redis, 'cache_', 0);
+                $this->cacheAdapter = new RedisAdapter($redis, $this->sub, 0);
             } catch (\Exception $e) {
-                // Handle the exception and fallback to FilesystemAdapter
+                // Handle the exception and fallback to FilesystemAdapter                
                 $this->cacheAdapter = new FilesystemAdapter();
             }
         } else {
             // Use the default file system cache adapter
+            
             $this->cacheAdapter = new FilesystemAdapter();
         }
     }
@@ -53,12 +56,12 @@ class CacheManager
         }
     }
 
-    public function logDebugBar($key, $data, $expiration)
+    public function logDebugBar($key, $data, $expiration = 0)
     {
         if (class_exists('Framework\DebugBar') && DebugBar::isSet()) {
-            $debugbar = DebugBar::instance()->getDebugBar();
-            if ($debugbar && isset($debugbar["cache"])) {
-                $debugbar["cache"]->addCacheItem($key, json_encode($data));
+            $debugbar = DebugBar::instance()->getDebugBar();            
+            if ($debugbar && isset($debugbar[$this->sub])) {
+                $debugbar[$this->sub]->addCacheItem($key, json_encode($data));
             }
         }
     }
