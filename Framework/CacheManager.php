@@ -60,8 +60,8 @@ class CacheManager
     {
         if (class_exists('Framework\DebugBar') && DebugBar::isSet()) {
             $debugbar = DebugBar::instance()->getDebugBar();            
-            if ($debugbar && isset($debugbar[$this->sub])) {
-                $debugbar[$this->sub]->addCacheItem($key, json_encode($data));
+            if ($debugbar && isset($debugbar['cache'])) {
+                $debugbar['cache']->addCacheItem($key, json_encode($data));
             }
         }
     }
