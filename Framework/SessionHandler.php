@@ -44,18 +44,56 @@ class SessionHandler
      */
     public function startSession(): void
     {
-        if (self::$session === null || !(self::$session instanceof Session)) {
-            // Initialiser le stockage si ce n'est pas déjà fait
-            if (session_status() === PHP_SESSION_ACTIVE) {
-                session_write_close();
-            }            
-            $this->initializeStorage();
-            self::$session = new Session($this->storageHandler);
+        try {
+            if (self::$session === null || !(self::$session instanceof Session)) {
+                // Initialiser le stockage si ce n'est pas déjà fait
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_write_close();
+                }            
+                $this->initializeStorage();
+                self::$session = new Session($this->storageHandler);
+            }
+    
+            // Démarrer la session si elle n'est pas déjà démarrée
+            if (!self::$session->isStarted()) {
+                self::$session->start();  // C'est ici que l'erreur Symfony se produit
+            }
+        } catch (\Throwable $e) {
+            // Log l'erreur pour le debugging
+            error_log("Session start error: " . $e->getMessage());
+            
+            // Essayer de créer une session de secours en mémoire
+            $this->fallbackToMemorySession();
+            
+            // Si en mode développement, propager l'erreur
+            if ($_ENV['APP_ENV'] === 'dev') {
+                throw new \Exception("Session initialization failed: " . $e->getMessage());
+            }
         }
-
-        // Démarrer la session si elle n'est pas déjà démarrée
-        if (!self::$session->isStarted()) {
+    }
+    
+    private function fallbackToMemorySession(): void
+    {
+        try {
+            // Créer un stockage en mémoire temporaire
+            $this->storageHandler = new NativeSessionStorage([
+                'session.storage.native_options' => [
+                    'use_cookies' => false,
+                    'use_only_cookies' => false,
+                    'use_trans_sid' => false,
+                    'cookie_httponly' => true,
+                ]
+            ]);
+            self::$session = new Session($this->storageHandler);
+            
+            // Démarrer la session en mémoire
             self::$session->start();
+            
+            // Logguer l'utilisation du fallback
+            error_log("Using memory session fallback due to storage initialization failure");
+        } catch (\Throwable $e) {
+            // En cas d'échec du fallback, logger mais continuer
+            error_log("Memory session fallback failed: " . $e->getMessage());
         }
     }
 
@@ -87,19 +125,26 @@ class SessionHandler
                 }
             }
     
-            // Configuration pour le stockage natif (fallback)
+            // Utiliser systématiquement SESSION_PATH s'il est défini, sinon sys_get_temp_dir()
+            $sessionPath = $_ENV['SESSION_PATH'] ?? sys_get_temp_dir();
+    
+            // Vérifier que le dossier existe
+            if (!is_dir($sessionPath)) {
+                mkdir($sessionPath, 0755, true);
+            }
+    
             $options = [
                 'session.storage.native_options' => [
                     'use_strict_mode' => true,
                     'use_cookies' => true,
                     'use_only_cookies' => true,
                     'cookie_httponly' => true,
-                    'auto_start' => false
+                    'auto_start' => false,
+                    'save_path' => $sessionPath
                 ]
             ];
     
-            // Fallback sur le gestionnaire de fichiers
-            $fileHandler = new NativeFileSessionHandler(sys_get_temp_dir());
+            $fileHandler = new NativeFileSessionHandler($sessionPath);
             $this->storageHandler = new NativeSessionStorage($options, $fileHandler);
     
         } catch (\Throwable $e) {
