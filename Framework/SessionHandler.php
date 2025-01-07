@@ -104,35 +104,43 @@ class SessionHandler
     {
         try {
             $sessionDriver = $_ENV['SESSION_DRIVER'] ?? 'native';
-    
-            // Si une session est déjà active, on la ferme proprement
+            
             if (session_status() === PHP_SESSION_ACTIVE) {
                 session_write_close();
             }
-    
+
             if ($sessionDriver === 'redis') {
                 try {
                     $redisConnection = RedisConnection::instance();
                     $redis = $redisConnection->getRedis();
-    
+
                     if ($redis) {
                         $redisHandler = new RedisSessionHandler($redis, ['prefix' => $this->sub]);
                         $this->storageHandler = new NativeSessionStorage([], $redisHandler);
+                        
+                        // Log Redis storage dans DebugBar
+                        if (class_exists('Framework\DebugBar') && \Framework\DebugBar::isSet()) {
+                            \Framework\DebugBar::instance()->getDebugBar()["messages"]
+                                ->addMessage(['Session storage' => 'Redis with prefix: ' . $this->sub]);
+                        }
                         return;
+                    } else {
+                        throw new \Exception("Redis connection failed");
                     }
                 } catch (\Throwable $e) {
-                    trigger_error("Session Redis demandée mais impossible de se connecter. Bascule sur le système de fichiers.", E_USER_WARNING);
+                    if (class_exists('Framework\DebugBar') && \Framework\DebugBar::isSet()) {
+                        \Framework\DebugBar::instance()->getDebugBar()["messages"]
+                            ->addMessage(['Session storage' => 'Redis connection failed: ' . $e->getMessage()]);
+                    }                   
                 }
             }
-    
-            // Utiliser systématiquement SESSION_PATH s'il est défini, sinon sys_get_temp_dir()
+
             $sessionPath = $_ENV['SESSION_PATH'] ?? sys_get_temp_dir();
-    
-            // Vérifier que le dossier existe
+
             if (!is_dir($sessionPath)) {
                 mkdir($sessionPath, 0755, true);
             }
-    
+
             $options = [
                 'session.storage.native_options' => [
                     'use_strict_mode' => true,
@@ -143,10 +151,16 @@ class SessionHandler
                     'save_path' => $sessionPath
                 ]
             ];
-    
+
             $fileHandler = new NativeFileSessionHandler($sessionPath);
             $this->storageHandler = new NativeSessionStorage($options, $fileHandler);
-    
+
+            // Log File storage dans DebugBar
+            if (class_exists('Framework\DebugBar') && \Framework\DebugBar::isSet()) {
+                \Framework\DebugBar::instance()->getDebugBar()["messages"]
+                    ->addMessage(['Session storage' => 'File storage in: ' . $sessionPath]);
+            }
+
         } catch (\Throwable $e) {
             throw new \Exception("Cannot Initialize Session Storage: " . $e->getMessage());
         }
