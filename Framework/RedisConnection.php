@@ -1,20 +1,23 @@
 <?php
 
 namespace Framework;
+use Classes\Logger;
 
 class RedisConnection
 {
     private static $instance = null;
     private $redis;
+    private $lastError = null;
+    private $connectionStatus = null;
 
     private function __construct()
     {
         if (class_exists('Redis')) {
             $this->connect();
         } else {
-            // Log or handle the situation where Redis is not available
-            // For example, you can use a logger to record that Redis is not available
-            // Logger::warning('Redis extension is not installed.');
+            $this->lastError = 'Redis extension is not installed';
+            $this->connectionStatus = 'Extension PHP Redis manquante';
+            Logger::critical('Redis', ['error' => $this->lastError]);
         }
     }
 
@@ -35,22 +38,49 @@ class RedisConnection
         try {
             $this->redis = new \Redis();
             $this->redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_PHP);
-            $this->redis->connect($redisHost, $redisPort);
+
+            // Tentative de connexion avec timeout
+            if (!$this->redis->connect($redisHost, $redisPort)) {
+                throw new \RuntimeException("Connection failed to Redis server at {$redisHost}:{$redisPort}");
+            }
+            $this->connectionStatus = "Connected to Redis at {$redisHost}:{$redisPort}";
 
             // Authentification si un mot de passe est configuré
             if ($redisPassword !== null) {
                 if (!$this->redis->auth($redisPassword)) {
-                    throw new \RuntimeException('Redis authentication failed.');
+                    throw new \RuntimeException('Redis authentication failed - Invalid password');
                 }
+                $this->connectionStatus .= " (Authenticated)";
             }
 
             // Vérifier si la connexion à Redis fonctionne
-            if (!$this->redis->ping()) {
-                throw new \RuntimeException('Ping to Redis failed.');
+            $pingResponse = $this->redis->ping();
+            if (!$pingResponse) {
+                throw new \RuntimeException("Redis ping failed - No response");
             }
+
+            // Récupérer des informations sur le serveur Redis
+            $info = $this->redis->info();
+            $this->connectionStatus .= sprintf(
+                " | Redis v%s | Memory: %s | Connected clients: %d",
+                $info['redis_version'],
+                $info['used_memory_human'],
+                $info['connected_clients']
+            );
+
+            // Logger::debug('Redis Connection Success', [
+            //     'status' => $this->connectionStatus,
+            //     'info' => $info
+            // ]);
+
         } catch (\Exception $e) {
-            // Log the exception or handle it as needed
-            // Logger::error('Unable to connect to Redis: ' . $e->getMessage());
+            $this->lastError = $e->getMessage();
+            $this->connectionStatus = "Connection failed: " . $this->lastError;
+            Logger::critical('Redis Connection Error', [
+                'error' => $this->lastError,
+                'host' => $redisHost,
+                'port' => $redisPort
+            ]);
             $this->redis = null;
         }
     }
@@ -60,23 +90,53 @@ class RedisConnection
         return $this->redis;
     }
 
+    public function getLastError()
+    {
+        return $this->lastError;
+    }
+
+    public function getConnectionStatus()
+    {
+        return $this->connectionStatus;
+    }
+
     public function checkRedisStatus()
     {
         if ($this->redis === null) {
-            return false;
+            return [
+                'connected' => false,
+                'status' => $this->connectionStatus,
+                'error' => $this->lastError
+            ];
         }
 
         try {
-            // Envoie une commande PING à Redis
-            if ($this->redis->ping() === '+PONG') {
-                return true;
-            } else {
-                return false;
+            $pingResponse = $this->redis->ping();
+            if (!$pingResponse) {
+                throw new \RuntimeException("Redis ping failed");
             }
+            
+            $info = $this->redis->info();
+            return [
+                'connected' => true,
+                'status' => $this->connectionStatus,
+                'info' => [
+                    'version' => $info['redis_version'],
+                    'memory_usage' => $info['used_memory_human'],
+                    'connected_clients' => $info['connected_clients'],
+                    'uptime_days' => $info['uptime_in_days'],
+                    'total_commands_processed' => $info['total_commands_processed']
+                ]
+            ];
         } catch (\Exception $e) {
-            // Log the exception or handle it as needed
-            // Logger::error('Redis ping failed: ' . $e->getMessage());
-            return false;
+            $this->lastError = $e->getMessage();
+            Logger::critical('Redis Status Check Failed', ['error' => $this->lastError]);
+            
+            return [
+                'connected' => false,
+                'status' => 'Connection check failed',
+                'error' => $this->lastError
+            ];
         }
     }
 }
