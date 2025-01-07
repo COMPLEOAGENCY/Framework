@@ -30,11 +30,19 @@ class RedisConnection
     {
         $redisHost = $_ENV['REDIS_HOST'] ?? '127.0.0.1';
         $redisPort = $_ENV['REDIS_PORT'] ?? 6379;
+        $redisPassword = $_ENV['REDIS_PASSWORD'] ?? null;
 
         try {
             $this->redis = new \Redis();
             $this->redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_PHP);
             $this->redis->connect($redisHost, $redisPort);
+
+            // Authentification si un mot de passe est configuré
+            if ($redisPassword !== null) {
+                if (!$this->redis->auth($redisPassword)) {
+                    throw new \RuntimeException('Redis authentication failed.');
+                }
+            }
 
             // Vérifier si la connexion à Redis fonctionne
             if (!$this->redis->ping()) {
