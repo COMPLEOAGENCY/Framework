@@ -1,330 +1,285 @@
-# Framework
+# 🚀 PHP Simple Framework
 
-PHP Framework MVC routing request
+A lightweight, high-performance MVC framework built for modern PHP applications.
 
-## Technologies
+## 🤔 Why Choose This Framework?
 
-- PHP ("^7.1 || ^8.0")
+### Simplicity First
+- **Minimal Learning Curve**: Start building immediately with intuitive concepts
+- **Clean Architecture**: Straightforward MVC implementation
+- **Developer Friendly**: Clear and predictable behavior
+- **Readable Code**: No magic methods or complex abstractions
 
-# Documentation
+### Performance & Efficiency
+- **Fast Request Processing**: Optimized routing and middleware chain
+- **Low Memory Footprint**: Only loads required components
+- **Efficient Caching**: Redis and filesystem cache support
+- **Quick Response Time**: Direct response handling
 
-## Start
+### Built on Solid Foundations
+- **Laravel Components**:
+  - Eloquent ORM for database operations
+  - HTTP handling
+  - Query Builder
+- **Symfony Components**:
+  - Cache system
+  - Session management
+- **Other High-Quality Packages**:
+  - BladeOne for template rendering
+  - Monolog for logging
+  - PHP Debug Bar for debugging
 
+### Flexibility & Extensibility
+- **Regex-Based Routing**: Powerful pattern matching
+- **Chainable Middleware**: Easy request/response manipulation
+- **Environment Adaptable**: Works in various hosting setups
+- **Multiple Cache Drivers**: Redis or filesystem
+- **Session Flexibility**: Redis or filesystem storage
+
+## ✨ Features
+
+- MVC Architecture
+- Advanced Routing with Regex Support
+- Middleware System
+- Template Engine (BladeOne)
+- Session Management
+- Cache System
+- Debug Bar Integration
+- Queue Management
+- Environment Configuration
+- Exception Handling
+- Logging System
+
+## 📦 Installation
+
+```bash
+composer require framework/framework
 ```
-use Framework\Framework;
 
-require __DIR__ . '/vendor/autoload.php';
+## 🗺️ Routing
 
-$App = new Framework();
-$App::get('/', 'Home', 'home');
-$App->run();
+### Basic Routing
+```php
+// Basic Controller@action syntax
+$App::get('/users', 'UserController@index');
+$App::post('/users', 'UserController@store');
+
+// Method chaining style
+$App->get('/users/{id}')
+    ->setAction('UserController@show')
+    ->setMiddleware([\App\Middlewares\AuthMiddleware::class]);
+
+// Catch-all routes
+$App->all("/.*")
+    ->setAction("CatchAll@query")
+    ->setMiddleware([\App\Middlewares\RedirectionMiddleware::class]);
 ```
 
-## Routing
+### Route Parameters
+```php
+// Named parameters
+$App::get('/users/{id}', 'UserController@show');
 
-You will **define all of the routes** for your application in the **Config/route.json file**.
-
+// Multiple parameters
+$App::get('/posts/{postId}/comments/{commentId}', 'CommentController@show');
 ```
-{
-	"path" : "/uri",
-	"controller" : "ExampleController",
-	"action" : "exampleAction",
-	"method" : "GET",
-	"param" : []
+
+## 🔒 Middleware
+
+### Middleware Registration
+```php
+// Global middleware
+$App->use("/.*", [
+    \App\Middlewares\SessionMiddleware::class
+]);
+
+// Pattern-specific middleware
+$App->use("^/admin/.*", [
+    \App\Middlewares\AdminAuthMiddleware::class,
+    \App\Middlewares\LoggingMiddleware::class
+]);
+
+// Conditional middleware
+if (isset($_ENV['DEBUG'])) {
+    $App->use("/.*", [\App\Middlewares\DebugBarMiddleware::class]);
 }
 ```
 
-Or generate **routes dynamically**. The most basic routes simply accept a **URI**, **Controller**, **Method**
+### Creating Middleware
+```php
+namespace App\Middlewares;
 
-```
-use Framework\Framework;
+use Framework\Middleware;
 
-require __DIR__ . '/vendor/autoload.php';
-
-$App = new Framework();
-$App::get('/', 'ExampleController', 'exampleAction');
-$App->run();
-```
-
-**Available Router Methods**
-
-```
-$App::get($uri, $controller, $action);
-$App::post($uri, $controller, $action);
-$App::put($uri, $controller, $action);
-$App::delete($uri, $controller, $action);
-$App::all($uri, $controller, $action);
-```
-
-## Controller
-
-Your Controller must extends **Framework\Controller**
-
-```
-namespace  Georges\Controllers;
-use Framework\Controller;
-
-class ExampleController extends Controller
+class AuthMiddleware extends Middleware
 {
-    public function exampleAction($params)
+    public function handle($request, $response)
     {
-		...
-    }
-}
-```
-
-In your controller, you can define **params** and and access them in your views
-
-```
-namespace  Georges\Controllers;
-use Framework\Controller;
-
-class ExampleController extends Controller
-{
-    public function exampleAction($params)
-    {
-        $params['example'] = "This is example";
-		//Or like this
-		$example = "This is example";
-		...
-    }
-}
-```
-
-## Middleware
-
-In **Config/middlewares.php file** define your Middleware.
-
-```
-return array(
-    [
-        'path'=>"/",
-        'middleware'=>[\Georges\Middlewares\ExampleMiddleWare1::class,\Georges\Middlewares\ExampleMiddleWare2:class]
-    ],
-    [
-        'path'=>"/example",
-        'middleware'=>\Georges\Middlewares\ExampleMiddleWare::class
-    ]
-);
-```
-
-All your Middleware must contains **handle function** for call all next middleware
-
-```
-namespace Georges\Middlewares;
-
-class ExampleMiddleWare extends \Framework\Middleware{
-    function handle($httpRequest){
-        echo  "ExampleMiddleWare run";
-        return parent::next($httpRequest);
-    }
-}
-```
-
-## View
-
-**Create View in Views directory**
-
-```
-Views
- ┣ 📂example
- ┃	┣ 📜exampleIndex.php
-```
-
-**Rendering View in Controller**
-
-```
-namespace  Georges\Controllers;
-use Framework\Controller;
-
-class ExampleController extends Controller
-{
-    public function exampleAction($params)
-    {
-		$params['example'] = "This is example"
-		//Set directory where is your view
-        self::setDirName("Example");
-        return self::view('exampleIndex', $params);
-
-		//You can also make
-		//return self::view('Example/exampleIndex', $params);
-    }
-}
-
-```
-
-**Use params in your view**
-
-```
-<h1>Example</h1>
-
-<p>{{example}}</p>
-
-<p><?= $example ?></p>
-```
-
-**Add Custom CSS File in view**
-
-Create directory in **Views/**
-
-```
-📦Views
- ┣ 📂css
- ┃ ┣ 📂example
- ┃ ┃ ┣ 📜style.css
-```
-
-In your **Controller and in your Action** add
-
-```
-$view = new View();
-$view::addCss("example/style.css");
-```
-
-**Add Custom JS File in view**
-
-Create directory in **Views/**
-
-```
-📦Views
- ┣ 📂js
- ┃ ┣ 📂example
- ┃ ┃ ┣ 📜main.js
-```
-
-In your **Controller and in your Action** add
-
-```
-$view = new View();
-$view::addJs("example/main.js");
-```
-
-## Basic Auth Example
-
-**Routing**
-
-```
-use Framework\Framework;
-
-require __DIR__ . '/vendor/autoload.php';
-
-session_start();
-$App = new Framework();
-
-$App::get('/exampleHome', 'exampleHome', 'home');
-$App::get('/exampleLogin', 'exampleLogin', 'login');
-
-$App->run();
-```
-
-**Config/middlewares.php**
-
-```
-return
-    array(
-        [
-            'path' => "/exampleHome",
-            'middleware' => \Georges\Middlewares\ExampleAuthMiddleware::class
-        ],
-        [
-            'path' => "/exampleLogin",
-            'middleware' => \Georges\Middlewares\ExampleSetAuthMiddleware::class
-        ]
-    );
-```
-
-**ExampleAuthMiddleware**
-
-```
-namespace Georges\Middlewares;
-
-class ExampleAuthMiddleware extends \Framework\Middleware
-{
-    function handle($httpRequest)
-    {
-        if (isset($_SESSION['auth']) && $_SESSION['auth'] == true) {
-        } else {
-            redirect("/exampleLogin");
+        // Pre-controller logic
+        if (!isAuthenticated()) {
+            return redirect('/login');
         }
-        return parent::next($httpRequest);
+        
+        // Continue to next middleware
+        return parent::next($request, $response);
+        
+        // Post-controller logic can be added here
     }
 }
 ```
 
-**ExampleSetAuthMiddleware**
+## 📁 Project Structure
 
 ```
-namespace Georges\Middlewares;
-
-class ExampleSetAuthMiddleware extends \Framework\Middleware
-{
-    function handle($httpRequest)
-    {
-        if ($httpRequest->getMethod() == 'POST') {
-            if ($_POST['user'] == "admin" && $_POST['password'] == "1234") {
-                $_SESSION['auth'] = true;
-                redirect("/exampleHome");
-            } else {
-                flash('errorLogin', 'Wrong username or password... !', 'danger');
-            }
-        }
-
-        if (isset($_SESSION['auth']) && $_SESSION['auth'] = true) {
-            redirect("/exampleHome");
-        }
-        return parent::next($httpRequest);
-    }
-}
+your-project/
+├── App/
+│   ├── Controllers/         # Request handlers
+│   ├── Middlewares/        # Custom middleware
+│   ├── Models/             # Data models
+│   └── Views/              # Blade templates
+│       ├── layouts/
+│       └── components/
+│
+├── Config/
+│   ├── .env               # Environment variables
+│   └── middlewares.php    # Middleware config
+│
+├── public/
+│   ├── index.php         # Entry point
+│   ├── css/
+│   └── js/
+│
+├── cache/
+│   └── views/            # Compiled templates
+│
+├── storage/
+│   ├── logs/            # Application logs
+│   └── sessions/        # File sessions
+│
+└── vendor/
 ```
 
-**ExampleHomeController && ExampleLoginController**
+## 🔄 Request Lifecycle
 
-```
-namespace  Georges\Controllers;
+1. **Request Initialization**
+   - Request capture and normalization
+   - Environment setup
+   - Session initialization
+
+2. **Middleware Chain**
+   ```
+   Request → M1 → M2 → M3 → Controller → Response
+           ↑    ↓    ↑    ↓      ↑
+           └────┴────┴────┘      ↓
+         (Bidirectional flow)    Response
+   ```
+
+3. **Route Resolution**
+   - Pattern matching
+   - Parameter extraction
+   - Controller identification
+
+4. **Response Generation**
+   - Controller execution
+   - View rendering
+   - Response formatting
+
+## 🎮 Controllers
+
+```php
+namespace App\Controllers;
+
 use Framework\Controller;
 
-class ExampleLogin extends Controller
+class UserController extends Controller
 {
-    public function login($params)
+    public function index($params)
     {
-        self::setDirName("login");
-        return self::view('exampleLogin', $params);
+        return $this->view('users.index', [
+            'users' => User::all()
+        ]);
     }
 }
 ```
 
-```
-namespace  Georges\Controllers;
-use Framework\Controller;
+## 📝 Views
 
-class Home extends Controller
-{
-    public function home($params)
-    {
-        $params['name'] = 'Marc';
-        $params['age'] = '12 ans';
-        $params['civ'] = 'M';
-        self::setDirName("Home");
-        self::view('exampleHome', $params);
-    }
-}
+```php
+<!-- views/users/index.blade.php -->
+@extends('layouts.app')
+
+@section('content')
+    <h1>Users</h1>
+    @foreach($users as $user)
+        <div>{{ $user->name }}</div>
+    @endforeach
+@endsection
 ```
 
-**Views**
+## 💾 Caching
 
-```
-//Home View
-<h1>Hello {{civ}}.{{name}}</h1>
-<p>You have {{age}} years old.</p>
+```php
+// Redis or filesystem caching
+$cache = CacheManager::instance();
+
+// Store data
+$cache->set('users', $users, 3600);
+
+// Retrieve data
+$users = $cache->get('users');
 ```
 
-```
-//Login View
-<h1>You are not connected</h1>
+## 📊 Debug Bar
 
-<form action="#" method="POST">
-    <input name="user" type="text" placeholder="User">
-    <input name="password" type="password" placeholder="Password">
-    <button>Submit</button>
-</form>
+Built-in debugging features:
+- Request/Response info
+- Cache operations
+- Server variables
+- Execution time
+- Redis status
+- Query logging
+
+## ⚡ Session Management
+
+```php
+$session = SessionHandler::getInstance();
+
+// Store data
+$session->set('user_id', 123);
+
+// Retrieve data
+$userId = $session->get('user_id');
 ```
+
+## 🔄 Queue System
+
+```php
+// Add to queue
+QueueManager::instance()->add('emails', [
+    'to' => 'user@example.com',
+    'subject' => 'Welcome'
+]);
+
+// Process queue
+$job = QueueManager::instance()->remove('emails');
+```
+
+## 🛠️ Configuration (.env)
+
+```env
+APP_ENV=development
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_PASSWORD=null
+REDIS_CACHE_PREFIX=cache_
+REDIS_QUEUE_PREFIX=queue_
+REDIS_SESSION_PREFIX=session_
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This framework is open-sourced software licensed under the MIT license.
