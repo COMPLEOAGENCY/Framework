@@ -1,157 +1,143 @@
 <?php
 
 namespace Framework;
+
 use Framework\Enums\HTTPMethod;
 use Illuminate\Http\Request;
-use Illuminate\Http\Redirect;
-use Symfony\Component\HttpFoundation\Session\Session;
-// https://symfony.com/doc/current/session.html
-
 
 class HttpRequest
 {
+    private $_param = [];
+    private $_method;
+    private $_route;
+    public $request;
+    public $path;
 
-    private         $_param;
-    private         $_method;
-    private         $_route;
-    public          $_session;
-    public          $request;
-    public          $path;
-
-    function __construct()
+    public function __construct()
     {
-
         $this->request = Request::capture();
         $this->_method = HTTPMethod::fromValue($this->request->method());
-        $this->_param = array();
-        $this->_session = null;
         $this->path = '/' . ltrim($this->request->getPathInfo(), "/");
         $this->bindParam();
     }
 
-    public function getUrl()
+    public function getUrl(): string
     {
-        return  $this->request->getScheme().'://'.$this->getHost().$this->getPath();
+        return $this->getScheme() . '://' . $this->getHost() . $this->getPath();
     }
 
-    public function getPath()
+    public function getFullUrl(): string
+    {
+        return  trim($this->getUrl()."?".http_build_query($this->query()),"?"); 
+    }
+
+    public function getPath(): string
     {
         return $this->path;
     }
 
-    public function setPath($path)
+    public function setPath(string $path): void
     {
-        $this->path = "/".ltrim($path,"/");
-    }    
-
-    public function getMethod()
-    {
-        return  $this->_method->getName();        
+        $this->path = "/" . ltrim($path, "/");
     }
 
-    public function getHost()
+    public function getMethod(): string
     {
-        return $this->request->header('X-Forwarded-Host', $this->request->getHost());  
-    } 
+        return $this->_method->getName();
+    }
 
-    public function getScheme()
+    public function getHost(): string
     {
-        if ($this->request->header('X-HTTPS') === 'on' || $this->request->header('X-HTTPS') == '1') {
-            $scheme = 'https';
-        } elseif ($this->request->secure()) {
-            $scheme = 'https';
-        } else {
-            $scheme = 'http';
-        }        
-        return  $scheme;     
-    }    
+        return $this->request->header('X-Forwarded-Host', $this->request->getHost());
+    }
 
+    public function getClientIp(): string
+    {
+        return $this->request->header('X-Forwarded-For', $this->request->getClientIp());
+    }     
+
+    public function getScheme(): string
+    {
+        // proxy redirection detection in header
+        if($this->request->header('X-HTTPS') == '1'){
+            return 'https';
+        }
+        // check server variable for https redirection
+        if ($this->request->server('HTTP_X_HTTPS') == '1') {
+            return 'https';
+        }
+        // Méthode de secours
+        return $this->request->isSecure() ? 'https' : 'http';
+    }
+    
+    
+    
+    
     public function getParam(string $paramName)
     {
-        if (isset($this->_param[$paramName])) {
-            return $this->_param[$paramName];
-        } else {
-            return null;
-        }
+        return $this->_param[$paramName] ?? null;
     }
 
-    public function getParams()
+    public function getParams(): array
     {
         return $this->_param;
     }
 
-    public function getSession()
+    public function getRoute()
     {
-        return $this->_session;
-    }
-    public function setSession(object $session)
-    {
-        $this->_session = $session;
+        return $this->_route;
     }
 
-    public function startSession()
+    public function setParams(array $params): void
     {
-        if(empty($this->_session)){
-            $session = new Session();
-            $session->start();
-            $this->setSession($session);        
-        }
-        return $this->getSession(); 
-    }    
-
-    public function setParams(array $params)
-    {
-        foreach ($params as $oneParams => $value) {
-            $this->_param[$oneParams] = $value;
-        }
-        return;
+        $this->_param = array_merge($this->_param, $params);
     }
 
-    public function deleteParam(string $name)
+    public function deleteParam(string $name): void
     {
         unset($this->_param[$name]);
-        return;
-    }
-    public function setParam(string $name, $value)
-    {
-        $this->_param[$name] = $value;
-        return;
     }
 
-    public function setRoute($route)
+    public function setParam(string $name, $value): void
+    {
+        $this->_param[$name] = $value;
+    }
+
+    // to do : deprecated this function
+    public function startSession()
+    {
+        $this->getSession();
+    }
+
+    public function getSession()
+    {
+        return SessionHandler::getInstance();
+    }
+
+    public function setRoute($route): void
     {
         $this->_route = $route;
     }
 
-    public function bindParam($method = "ALL")
+    private function bindParam(string $method = "ALL"): void
     {
-        switch ($method) {
+        $params = [];
+        switch (strtoupper($method)) {
             case "GET":
             case "DELETE":
-                // $this->_param = $this->request->query();                
-                if (!empty($this->request->query())) {
-                    $this->_param = array_merge($this->_param, $this->request->query());
-                } // hack
+                $params = $this->request->query();
                 break;
             case "POST":
             case "PUT":
-                // $this->_param = $this->request->post();
-                if (!empty($this->request->post())) {
-                    $this->_param = array_merge($this->_param, $this->request->post());
-                } // hack
+                $params = $this->request->post();
                 break;
             case "ALL":
-                // $this->_param = $this->request->all();
-                // var_dump( $this->_param);exit;
-                if (!empty($this->request->all())) {
-                    $this->_param = array_merge($this->_param, $this->request->all());
-                } // hack
+            default:
+                $params = $this->request->all();
                 break;
         }
-        if (isset($this->_param['query'])) {
-            unset($this->_param['query']);
-        }
-        // \Classes\logIt('Params when bind parameters Framework for this ' . $this->getUrl() . '', 'debug', [$this->_param, '$_REQUEST' => $_REQUEST]);
+        $this->_param = array_merge($this->_param, $params);
+        unset($this->_param['query']);
     }
 
     public function __call($method, $args)
@@ -162,3 +148,4 @@ class HttpRequest
         return false;
     }
 }
+
